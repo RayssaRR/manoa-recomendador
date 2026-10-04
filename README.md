@@ -139,7 +139,7 @@ Os dados são exclusivamente sintéticos e não representam produtos ou usuário
 
 ```powershell
 
-git clone <URL_DO_REPOSITORIO>
+git clone https://github.com/RayssaRR/manoa-recomendador.git
 
 cd manoa-recomendador
 
