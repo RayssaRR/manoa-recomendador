@@ -1,7 +1,7 @@
 import time
 import bentoml
 from fastapi import FastAPI, Header
-from catalogo import catalogo
+from src.catalogo import catalogo
 
 app = FastAPI()
 
