@@ -6,8 +6,6 @@ O projeto foi desenvolvido inicialmente para a AV1 da disciplina de Inteligênci
 
 O serviço utiliza Python, BentoML e FastAPI. O catálogo contém 10 produtos fictícios de artesanato pernambucano. Não são utilizados dados pessoais reais.
 
-manoa-recomendador/README.md
-
 
 ## Integrantes
 
