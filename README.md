@@ -4,7 +4,7 @@ Mock do módulo de recomendação da plataforma **Manoa**, um marketplace de art
 
 O projeto foi desenvolvido inicialmente para a AV1 da disciplina de Inteligência Artificial e ampliado para a AV2. Na AV1, o serviço simulava as estratégias de recomendação. Na AV2, o módulo passou a consultar os dados por meio de funções de acesso centralizadas, registrar cada acesso em um arquivo JSONL e gerar um resumo de utilização.
 
-O serviço utiliza Python, BentoML e FastAPI. O catálogo contém 10 produtos fictícios de artesanato pernambucano. Não são utilizados dados pessoais reais.
+O serviço utiliza Python, BentoML e FastAPI. O catálogo atual contém 11 produtos fictícios de artesanato pernambucano. Não são utilizados dados pessoais reais.
 
 
 ## Integrantes
@@ -103,11 +103,35 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
 pip install -r requirements.txt
 ```
 
-### 1.5. Iniciar o serviço
+### 1.5. Configurar a chave administrativa (necessária para RF-03)
 
-Na raiz do projeto, com o ambiente virtual ativado:
+O endpoint de configuração lê a variável de ambiente `MANOA_ADMIN_API_KEY`. Defina a variável no mesmo terminal em que o serviço será iniciado.
+
+Windows PowerShell:
 
 ```powershell
+$env:MANOA_ADMIN_API_KEY = "manoa-admin-123"
+```
+
+Linux/macOS:
+
+```bash
+export MANOA_ADMIN_API_KEY="manoa-admin-123"
+```
+
+A chave acima é fictícia e utilizada somente para este mock.
+
+### 1.6. Iniciar o serviço
+
+Na raiz do projeto, com o ambiente virtual ativado e a variável configurada quando for testar o RF-03:
+
+```powershell
+bentoml serve src/service.py
+```
+
+No Linux/macOS, o comando de inicialização é o mesmo:
+
+```bash
 bentoml serve src/service.py
 ```
 
@@ -191,6 +215,7 @@ O projeto possui casos que permitem verificar o comportamento das funções de a
 - **Produto ID 999:** identificador inexistente no catálogo. A busca deve retornar ausência de resultado, sem interromper o serviço, e registrar o status `not_found`.
 - **Produto ID 10:** não possui selo de autoria cultural (`seloAutoriaCultural == false`), portanto não deve ser selecionado no Cold Start.
 - **Produto ID 11:** possui estoque igual a zero (`stock == 0`), portanto também não deve ser selecionado no Cold Start.
+  Além disso, sua categoria (`miniaturas`), município (`Petrolina`) e técnica (`marchetaria`) não coincidem com os atributos dos demais produtos do catálogo. Ao consultar `/api/v1/recommendations/product/11`, os candidatos recebem `score` igual a `0.0`; como o endpoint retorna os quatro primeiros, a resposta apresenta quatro recomendações empatadas com score zero.
 
 Esses casos permitem verificar tanto o tratamento de identificadores inexistentes quanto a aplicação dos critérios de elegibilidade.
 
@@ -209,6 +234,45 @@ IDs elegíveis: [1, 2, 3, 4, 5, 6, 7, 8, 9]
 O resultado confirma que os produtos de IDs 1 a 9 atendem aos critérios de selo e estoque disponível.
 
 Os produtos 10 e 11 são excluídos por motivos diferentes: ausência do selo de autoria cultural e ausência de estoque, respectivamente.
+
+### 3.6. Experiência de alteração de dado — impacto no Cold Start
+
+Esta experiência demonstra que uma alteração no catálogo modifica a resposta do módulo. O teste utiliza o produto 7, cujo estoque original é 20.
+
+1. Com o serviço em execução e o estoque do produto 7 igual a `20` em `src/catalogo.py`, consulte o Cold Start:
+
+   ```powershell
+   curl.exe "http://localhost:3000/api/v1/recommendations/home?anonymousSessionId=antes-alteracao"
+   ```
+
+   No Linux/macOS:
+
+   ```bash
+   curl "http://localhost:3000/api/v1/recommendations/home?anonymousSessionId=antes-alteracao"
+   ```
+
+   A resposta esperada inclui o produto 7 entre as recomendações. Com o catálogo atual, os quatro primeiros são os produtos 7, 6, 2 e 4.
+
+2. Pare o servidor (`Ctrl+C`). Abra `src/catalogo.py` e altere temporariamente o campo `stock` do produto de `productId: 7` de `20` para `0`. Não altere o estoque de outros produtos.
+3. Inicie novamente o servidor e repita a consulta:
+
+   ```powershell
+   curl.exe "http://localhost:3000/api/v1/recommendations/home?anonymousSessionId=depois-alteracao"
+   ```
+
+   No Linux/macOS:
+
+   ```bash
+   curl "http://localhost:3000/api/v1/recommendations/home?anonymousSessionId=depois-alteracao"
+   ```
+
+   O produto 7 não deve aparecer, pois o Cold Start exige `stock > 0`. Com os valores atuais do catálogo, os quatro primeiros passam a ser os produtos 6, 2, 4 e 1.
+
+4. Pare o servidor e restaure o estoque do produto 7 para `20` em `src/catalogo.py`. Inicie o serviço novamente para deixar o catálogo na condição original.
+
+Cada consulta ao endpoint aciona `get_cold_start_products` e acrescenta uma linha ao `logs/acessos.jsonl`. Compare o campo `recordIds` das duas chamadas: antes da alteração ele inclui o ID 7; depois da alteração ele não inclui o ID 7. As linhas do log registram os IDs retornados, enquanto a comparação das respostas HTTP demonstra a mudança na lista de recomendações.
+
+**Importante:** a alteração para estoque zero é temporária, feita somente para a demonstração. Ao final do teste, o valor original `20` deve ser restaurado.
 
 ## 4. Funções de acesso aos dados
 
@@ -364,6 +428,15 @@ Para contar as linhas registradas:
 (Get-Content .\logs\acessos.jsonl).Count
 ```
 
+No Linux/macOS, os comandos equivalentes são:
+
+```bash
+cat logs/acessos.jsonl
+wc -l logs/acessos.jsonl
+```
+
+As chamadas HTTP deste README usam `curl.exe` nos exemplos de PowerShell. No Linux/macOS, utilize `curl` no lugar de `curl.exe`, mantendo a mesma URL, os parâmetros e os cabeçalhos.
+
 As chamadas são reproduzíveis. Ao executá-las novamente, novas linhas serão acrescentadas ao arquivo. Para reproduzir os números da execução controlada documentada na seção 8, utilize um arquivo de log limpo antes de realizar os testes.
 
 ## 7. Gerar e visualizar o resumo
@@ -437,6 +510,28 @@ Entretanto, ocorreu uma consulta sem resultado: a busca pelo identificador 999, 
 
 Esse comportamento demonstra que a função `get_product_by_id` trata a ausência de um produto de maneira controlada, retornando `None` e registrando zero resultados. Assim, uma consulta por identificador inexistente não precisa ser tratada como uma falha técnica do serviço.
 
+### 8.1. Validação complementar — 26/11/2026
+
+Após a execução controlada inicial, foram realizados testes complementares dos requisitos funcionais RF02 e RF03 e do comportamento de recomendação para um produto sem atributos correspondentes.
+
+O arquivo `logs/acessos.jsonl` passou a conter 12 registros de acesso. O resumo atualizado apresentou:
+
+- **Total de chamadas:** 12.
+- **Erros técnicos:** 0.
+- **Consultas sem resultado:** 1.
+- **Chamadas de `get_cold_start_products`:** 6.
+- **Chamadas de `get_fallback_products`:** 1.
+- **Chamadas de `get_product_by_id`:** 3.
+- **Chamadas de `get_recommendation_candidates`:** 2.
+- **Produtos mais consultados individualmente:** IDs 1 e 11, com uma consulta cada.
+- **Produtos nunca consultados individualmente:** IDs 2 a 10.
+
+#### Teste RF02 — Atualização do Cold Start
+
+Foi realizada uma alteração temporária no estoque do produto de ID 7, reduzindo seu valor de 20 para 0.
+
+Antes da alteração, o produto aparecia na primeira posição das recomendações. Após a alteração, ele deixou de ser recomendado e os produtos de IDs
+
 ## 9. Declaração de uso de IA generativa
 
 A IA generativa foi utilizada como apoio durante o desenvolvimento e a documentação do trabalho, especialmente para discutir a organização das funções de acesso, o registro dos eventos, a geração do resumo e a revisão do README.
@@ -478,7 +573,7 @@ Os arquivos `data_access.py`, `resumo.py`, `__init__.py` e a pasta `logs/` foram
 
 ## Catálogo sintético
 
-O mock utiliza um catálogo local com **10 produtos fictícios** de artesanato pernambucano.
+O mock utiliza um catálogo local com **11 produtos fictícios** de artesanato pernambucano na versão atual. A versão inicial da AV1 possuía 10 registros; o catálogo foi ampliado posteriormente.
 
 Cada produto possui informações como:
 
@@ -644,10 +739,18 @@ Estratégias aceitas pelo mock:
 - `SAME_CATEGORY_AND_ORIGIN`
 - `COLD_START`
 
-**Exemplo de chamada:**
+Antes da chamada, configure `MANOA_ADMIN_API_KEY` no terminal em que o servidor será iniciado, conforme a seção 1.5. O valor enviado no cabeçalho `X-Api-Key` deve ser igual ao valor dessa variável.
+
+**Exemplo de chamada — Windows PowerShell:**
 
 ```powershell
 curl.exe -X PUT "http://localhost:3000/api/v1/recommendations/config?strategyId=COLD_START" -H "X-Api-Key: manoa-admin-123"
+```
+
+**Exemplo de chamada — Linux/macOS:**
+
+```bash
+curl -X PUT "http://localhost:3000/api/v1/recommendations/config?strategyId=COLD_START" -H "X-Api-Key: manoa-admin-123"
 ```
 
 **Resposta esperada:**
