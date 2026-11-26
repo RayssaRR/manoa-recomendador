@@ -111,17 +111,17 @@ Na raiz do projeto, com o ambiente virtual ativado:
 bentoml serve src/service.py
 ```
 
-O serviço fica disponível localmente em:
+O serviço ficará disponível localmente em:
 
 ```text
 http://localhost:3000
 ```
 
-Mantenha esse terminal aberto enquanto testa os endpoints. Abra um segundo terminal PowerShell, ative o ambiente virtual e entre na pasta do projeto para executar as chamadas HTTP e os comandos de análise.
+Mantenha esse terminal aberto enquanto realiza os testes. Abra um segundo terminal PowerShell, ative o ambiente virtual e entre na pasta do projeto para executar as chamadas HTTP e os comandos de análise.
 
-## Estrutura do projeto após a AV2
+## 2. Estrutura do projeto
 
-A estrutura abaixo apresenta a organização atual do repositório, incluindo os arquivos da AV1 e os componentes acrescentados para atender à AV2.
+A estrutura atual do repositório é:
 
 ```text
 manoa-recomendador/
@@ -138,28 +138,28 @@ manoa-recomendador/
 └── .gitignore
 ```
 
-**Arquivos mantidos da AV1:**
+### Arquivos do projeto
 
 - `src/catalogo.py`: mantém o catálogo fictício de produtos utilizado nas recomendações.
 - `src/service.py`: implementa o serviço BentoML/FastAPI e os endpoints do módulo de recomendação.
-
-**Arquivos adicionados para a AV2:**
-
 - `src/data_access.py`: centraliza as funções de acesso ao catálogo e registra cada chamada no log.
 - `src/resumo.py`: lê o arquivo JSONL e apresenta as estatísticas de utilização.
-- `logs/acessos.jsonl`: armazena, em formato JSON Lines, o histórico de chamadas às funções de acesso.
+- `logs/acessos.jsonl`: armazena, em formato JSON Lines, o histórico de chamadas às funções.
+- `requirements.txt`: contém as dependências necessárias para executar o projeto.
 
-`logs/acessos.jsonl` é criado automaticamente quando uma função de acesso registra sua primeira chamada. `src/__init__.py` identifica o diretório `src` como pacote Python.
+O arquivo `logs/acessos.jsonl` é criado automaticamente quando uma função de acesso registra sua primeira chamada. O arquivo `src/__init__.py` identifica o diretório `src` como pacote Python.
 
-## 2. Dicionário de dados
+## 3. Dicionário de dados
 
-### 2.1. Fonte e versão dos dados
+### 3.1. Fonte e versão dos dados
 
-Os dados utilizados são mantidos localmente em `src/catalogo.py`. O catálogo contém 10 registros fictícios de produtos artesanais. Essa versão permite executar e repetir os testes sem depender de banco de dados ou serviço externo.
+Os dados utilizados são mantidos localmente em `src/catalogo.py`.
+
+O catálogo atual contém **11 registros fictícios de produtos artesanais**. Essa versão permite executar e repetir os testes sem depender de banco de dados ou serviço externo.
 
 Não há dados pessoais de compradores, vendedores ou usuários reais.
 
-### 2.2. Campos utilizados
+### 3.2. Campos utilizados
 
 | Campo | Tipo | Significado no negócio |
 |---|---|---|
@@ -173,83 +173,72 @@ Não há dados pessoais de compradores, vendedores ou usuários reais.
 | `seloAutoriaCultural` | Booleano | Indica se o produto possui o selo de autoria cultural |
 | `stock` | Inteiro | Quantidade fictícia disponível em estoque |
 
-### 2.3. Regra de seleção do Cold Start
+### 3.3. Regra de seleção do Cold Start
 
-A estratégia `COLD_START` não depende de histórico de navegação ou compra. Ela seleciona produtos que atendam simultaneamente aos critérios:
+A estratégia `COLD_START` não depende de histórico de navegação ou compra. Ela seleciona produtos que atendam simultaneamente aos seguintes critérios:
 
 - `seloAutoriaCultural == true`;
 - `stock > 0`.
 
-Em seguida, o serviço ordena os produtos elegíveis pelo estoque em ordem decrescente e retorna até quatro recomendações.
+Depois da filtragem, o serviço ordena os produtos elegíveis pelo estoque em ordem decrescente e retorna até quatro recomendações.
 
-### 2.4. Caso difícil previsto nos dados
+Na versão atual, existem nove produtos elegíveis.
 
-O caso difícil utilizado na validação é a consulta ao identificador `999`, que não existe no catálogo. A função de busca deve retornar ausência de resultado, sem interromper o serviço, e registrar a ocorrência com status `not_found`.
+### 3.4. Casos difíceis previstos nos dados
 
-Também foi executado um teste de regra de negócio: o estoque do produto de ID `7` foi temporariamente alterado de `20` para `0`. O produto deixou de aparecer no Cold Start. Após restaurar o estoque para `20`, voltou a aparecer.
+O projeto possui casos que permitem verificar o comportamento das funções de acesso e das regras de negócio:
 
-### 2.5. Validação da alteração dos dados
+- **Produto ID 999:** identificador inexistente no catálogo. A busca deve retornar ausência de resultado, sem interromper o serviço, e registrar o status `not_found`.
+- **Produto ID 10:** não possui selo de autoria cultural (`seloAutoriaCultural == false`), portanto não deve ser selecionado no Cold Start.
+- **Produto ID 11:** possui estoque igual a zero (`stock == 0`), portanto também não deve ser selecionado no Cold Start.
 
-Foi realizado um teste para verificar se o Cold Start consulta o catálogo atualizado, em vez de retornar uma lista fixa.
+Esses casos permitem verificar tanto o tratamento de identificadores inexistentes quanto a aplicação dos critérios de elegibilidade.
 
-**Procedimento executado:**
+### 3.5. Validação das regras de seleção
 
-1. O produto de ID `7` (`Colar de Miçangas Artesanal`) possuía estoque `20`.
-2. O valor de `stock` desse produto foi temporariamente alterado para `0` em `src/catalogo.py`.
-3. O serviço foi reiniciado e o endpoint de Cold Start foi chamado.
-4. O produto de ID `7` deixou de aparecer, e a função retornou nove produtos elegíveis.
-5. O estoque foi restaurado para `20`.
-6. O serviço foi reiniciado e o endpoint foi chamado novamente.
-7. O produto de ID `7` voltou a aparecer, e a função retornou dez produtos elegíveis antes da seleção das quatro recomendações finais.
+Foi realizada uma verificação direta do catálogo e dos critérios utilizados pelo Cold Start.
 
-**Registros observados no log:**
+Resultado obtido:
 
-Durante a alteração:
-
-```json
-{
-  "function": "get_cold_start_products",
-  "caller": "/api/v1/recommendations/home",
-  "recordsReturned": 9,
-  "recordIds": [1, 2, 3, 4, 5, 6, 8, 9, 10],
-  "status": "success"
-}
+```text
+Total no catálogo: 11
+Total elegível: 9
+IDs elegíveis: [1, 2, 3, 4, 5, 6, 7, 8, 9]
 ```
 
-Após a restauração:
+O resultado confirma que os produtos de IDs 1 a 9 atendem aos critérios de selo e estoque disponível.
 
-```json
-{
-  "function": "get_cold_start_products",
-  "caller": "/api/v1/recommendations/home",
-  "recordsReturned": 10,
-  "recordIds": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-  "status": "success"
-}
-```
+Os produtos 10 e 11 são excluídos por motivos diferentes: ausência do selo de autoria cultural e ausência de estoque, respectivamente.
 
-**Resultado:** o teste confirmou que a função `get_cold_start_products` consulta o catálogo e aplica o critério `stock > 0`. A alteração dos dados modificou o conjunto de produtos retornados e foi registrada no arquivo JSONL.
+## 4. Funções de acesso aos dados
 
-## 3. Funções de acesso aos dados
+O módulo de recomendação acessa o catálogo por meio das funções centralizadas em `src/data_access.py`.
 
-O módulo de recomendação acessa o catálogo por meio das funções centralizadas em `src/data_access.py`. As rotas do serviço não devem percorrer o catálogo diretamente para realizar essas consultas.
+As rotas do serviço utilizam essas funções para consultar os dados, evitando que cada endpoint implemente diretamente sua própria lógica de acesso ao catálogo.
 
-| Função | Parâmetros | Responsabilidade | Retorno em caso sem resultado |
-|---|---|---|---|
-| `get_product_by_id(product_id, caller)` | ID do produto e rota chamadora | Busca um produto específico pelo identificador | Retorna `None` se o ID não existir |
-| `get_recommendation_candidates(product_id, caller)` | ID do produto e rota chamadora | Recupera os produtos candidatos, excluindo o próprio produto consultado | Retorna uma lista vazia se não houver candidatos |
-| `get_cold_start_products(caller)` | Rota chamadora | Recupera produtos com selo de autoria cultural e estoque disponível | Retorna uma lista vazia se não houver produtos elegíveis |
+### 4.1. Funções implementadas
 
-As funções registram suas chamadas por meio de `registrar_acesso()`, também definida em `src/data_access.py`.
+| Função | Parâmetros | Responsabilidade |
+|---|---|---|
+| `get_product_by_id(product_id, caller)` | ID do produto e rota chamadora | Busca um produto específico pelo identificador |
+| `get_recommendation_candidates(product_id, caller)` | ID do produto e rota chamadora | Recupera produtos candidatos, excluindo o próprio produto consultado |
+| `get_cold_start_products(caller)` | Rota chamadora | Recupera produtos com selo de autoria cultural e estoque disponível |
+| `get_fallback_products(product_ids, caller)` | Lista de IDs e rota chamadora | Recupera os produtos utilizados na estratégia de fallback |
 
-### 3.1. Tratamento de resultados e erros
+### 4.2. Tratamento de resultados e erros
+
+As funções tratam os resultados de acordo com o tipo de consulta:
 
 - Uma busca por produto inexistente é registrada como `not_found`, com zero registros retornados.
 - Uma chamada executada normalmente é registrada como `success`.
-- Uma exceção durante a execução é registrada como `error` e propagada novamente para que não seja ocultada.
+- Uma exceção durante a execução é registrada como `error` e propagada novamente.
 - A função de candidatos exclui o produto de origem para evitar recomendá-lo a si mesmo.
+- A função de Cold Start retorna somente produtos que atendem aos critérios de selo e estoque.
+- A função de fallback recupera os produtos definidos para a estratégia alternativa.
 
-### 3.2. Registro dos acessos
+Todas as funções registram seus acessos por meio de `registrar_acesso()`, também definida em `src/data_access.py`.
+
+## 5. Registro dos acessos
 
 Cada chamada a uma função de acesso acrescenta uma linha ao arquivo:
 
@@ -257,9 +246,11 @@ Cada chamada a uma função de acesso acrescenta uma linha ao arquivo:
 logs/acessos.jsonl
 ```
 
-O arquivo utiliza o formato JSON Lines: cada linha é um objeto JSON independente. O registro é feito em modo de acréscimo (`a`), portanto as novas chamadas são adicionadas ao final do arquivo, sem sobrescrever o histórico.
+O arquivo utiliza o formato JSON Lines: cada linha é um objeto JSON independente.
 
-Cada registro contém:
+O registro é feito em modo de acréscimo (`a`), portanto as novas chamadas são adicionadas ao final do arquivo, sem sobrescrever o histórico.
+
+### 5.1. Campos registrados
 
 | Campo | Conteúdo |
 |---|---|
@@ -271,11 +262,11 @@ Cada registro contém:
 | `recordIds` | Identificadores dos produtos retornados |
 | `status` | Resultado: `success`, `not_found` ou `error` |
 
-Exemplo de chamada bem-sucedida:
+### 5.2. Exemplo de chamada bem-sucedida
 
 ```json
 {
-  "timestamp": "2026-11-26T10:21:29.793527-03:00",
+  "timestamp": "2026-11-26T12:56:07.986396-03:00",
   "function": "get_product_by_id",
   "caller": "/api/v1/recommendations/product",
   "parameters": {
@@ -287,11 +278,11 @@ Exemplo de chamada bem-sucedida:
 }
 ```
 
-Exemplo de consulta sem resultado:
+### 5.3. Exemplo de consulta sem resultado
 
 ```json
 {
-  "timestamp": "2026-11-26T10:21:38.958517-03:00",
+  "timestamp": "2026-11-26T12:56:11.541606-03:00",
   "function": "get_product_by_id",
   "caller": "/api/v1/recommendations/product",
   "parameters": {
@@ -305,11 +296,11 @@ Exemplo de consulta sem resultado:
 
 O campo `recordIds` permite identificar quais produtos foram retornados pelas funções de acesso. Ele não representa, por si só, visualizações, cliques ou compras de usuários.
 
-## 4. Gerar o log — três chamadas reproduzíveis
+## 6. Gerar o log — chamadas reproduzíveis
 
 Com o serviço em execução na porta `3000`, abra um segundo terminal PowerShell na raiz do projeto.
 
-Execute as três chamadas abaixo, nesta ordem:
+Execute as quatro chamadas abaixo, nesta ordem, para exercitar as funções de acesso e o caso difícil.
 
 ### Chamada 1 — Buscar recomendações para o produto 1
 
@@ -317,17 +308,14 @@ Execute as três chamadas abaixo, nesta ordem:
 curl.exe "http://localhost:3000/api/v1/recommendations/product/1"
 ```
 
-Essa requisição aciona a busca do produto de origem e a recuperação dos candidatos à recomendação. Por isso, uma única requisição HTTP pode gerar mais de uma linha no log.
+Essa requisição aciona duas funções:
 
-### Chamada 2 — Executar Cold Start
+- `get_product_by_id`: busca o produto de origem;
+- `get_recommendation_candidates`: recupera os demais produtos do catálogo.
 
-```powershell
-curl.exe "http://localhost:3000/api/v1/recommendations/home?anonymousSessionId=teste-av2"
-```
+Por isso, uma única requisição HTTP gera duas linhas no log.
 
-Essa requisição aciona `get_cold_start_products` e retorna até quatro produtos elegíveis.
-
-### Chamada 3 — Consultar um produto inexistente
+### Chamada 2 — Consultar um produto inexistente
 
 ```powershell
 curl.exe "http://localhost:3000/api/v1/recommendations/product/999"
@@ -335,12 +323,39 @@ curl.exe "http://localhost:3000/api/v1/recommendations/product/999"
 
 Essa chamada exercita o caso difícil. A busca não encontra o produto e deve registrar `not_found`, com `recordsReturned` igual a `0` e `recordIds` vazio.
 
-### 4.1. Conferir os registros gerados
-
-Para visualizar as últimas linhas do arquivo:
+### Chamada 3 — Executar Cold Start
 
 ```powershell
-Get-Content .\logs\acessos.jsonl -Tail 10
+curl.exe "http://localhost:3000/api/v1/recommendations/home?anonymousSessionId=teste-final"
+```
+
+Essa requisição aciona `get_cold_start_products` e retorna até quatro produtos elegíveis, ordenados pelo estoque.
+
+### Chamada 4 — Executar fallback simulado
+
+```powershell
+curl.exe "http://localhost:3000/api/v1/recommendations/product/1?simulateTimeout=true"
+```
+
+Essa chamada simula o cenário de timeout e aciona `get_fallback_products`, que recupera os produtos previamente definidos para a estratégia alternativa.
+
+A resposta deve apresentar:
+
+```json
+{
+  "strategy": "TIMEOUT_FALLBACK_CACHE",
+  "fallbackUsed": true
+}
+```
+
+**Observação:** o parâmetro `simulateTimeout=true` simula o comportamento de timeout para fins de demonstração. Ele não representa uma detecção automática de timeout em uma chamada externa real.
+
+### 6.1. Conferir os registros gerados
+
+Para visualizar o conteúdo do arquivo:
+
+```powershell
+Get-Content .\logs\acessos.jsonl
 ```
 
 Para contar as linhas registradas:
@@ -349,9 +364,9 @@ Para contar as linhas registradas:
 (Get-Content .\logs\acessos.jsonl).Count
 ```
 
-As chamadas são reproduzíveis. Ao executá-las novamente, novas linhas serão acrescentadas ao arquivo. O histórico anterior não deve ser apagado durante a validação.
+As chamadas são reproduzíveis. Ao executá-las novamente, novas linhas serão acrescentadas ao arquivo. Para reproduzir os números da execução controlada documentada na seção 8, utilize um arquivo de log limpo antes de realizar os testes.
 
-## 5. Gerar e visualizar o resumo
+## 7. Gerar e visualizar o resumo
 
 O projeto possui o script `src/resumo.py`, que lê o arquivo JSONL e consolida as informações de acesso.
 
@@ -365,66 +380,72 @@ O resumo apresenta:
 
 - total de chamadas registradas;
 - total de erros técnicos (`status == "error"`);
-- total de consultas sem resultado (`status == "not_found"` ou busca de produto com `recordsReturned == 0`);
+- total de consultas sem resultado (`status == "not_found"`);
 - chamadas agrupadas por função;
-- produtos mais presentes nos registros de retorno;
-- produtos do catálogo que nunca apareceram em `recordIds`.
+- produtos mais consultados individualmente;
+- produtos do catálogo que nunca foram consultados individualmente.
 
-O script considera o histórico existente no arquivo. Portanto, os totais aumentam quando novas chamadas são executadas.
+### 7.1. Como interpretar a contagem de produtos
 
-### 5.1. Como interpretar a contagem de produtos
+A identificação dos produtos mais consultados individualmente considera exclusivamente os registros da função `get_product_by_id`, utilizando o identificador presente em `parameters.productId`.
 
-A contagem de produtos é baseada nas ocorrências dos identificadores em `recordIds`. Uma função que retorna vários produtos contribui com uma ocorrência para cada identificador retornado.
+As demais funções podem retornar vários produtos em `recordIds`, como ocorre na recuperação de candidatos, no Cold Start e no fallback. Entretanto, esses retornos não são contabilizados como consultas individuais aos produtos.
 
-Assim, a métrica representa a presença dos produtos nos resultados das funções de acesso, e não a quantidade de vezes que pessoas visualizaram ou clicaram nos produtos.
+Assim, um produto pode participar de recomendações sem ter sido consultado diretamente pela função `get_product_by_id`.
 
-Registros antigos que não possuam o campo `recordIds` continuam sendo lidos; nesses casos, não há identificadores de produtos a contabilizar naquela linha.
+Essa distinção evita interpretar a participação de um produto em uma lista de resultados como uma solicitação individual feita por um usuário.
 
-## 6. Análise dos resultados — itens A, B e C
+## 8. Análise dos resultados — itens A, B e C
 
-A execução mais recente do resumo, realizada em 26/11/2026, apresentou os seguintes resultados:
+A execução controlada dos testes, realizada em 26/11/2026, gerou **cinco registros** no arquivo `logs/acessos.jsonl`, a partir de quatro requisições HTTP.
 
-- **Total de chamadas:** 21.
+Os resultados consolidados foram:
+
+- **Total de registros de acesso:** 5.
 - **Erros técnicos:** 0.
-- **Consultas sem resultado:** 5.
-- **Chamadas de `get_cold_start_products`:** 6.
-- **Chamadas de `get_product_by_id`:** 10.
-- **Chamadas de `get_recommendation_candidates`:** 5.
-- **Produtos que nunca apareceram nos registros:** nenhum.
-
-Na mesma execução, os produtos de IDs `1`, `2`, `3`, `4`, `5`, `6`, `8`, `9` e `10` tiveram seis ocorrências em `recordIds` cada. O produto de ID `7` teve cinco ocorrências.
-
-> Os números documentam o histórico de acessos existente no momento da execução. Ao clonar o repositório e executar os testes, os totais poderão ser diferentes, pois dependem das chamadas registradas em `logs/acessos.jsonl`.
+- **Consultas sem resultado:** 1.
+- **Chamadas de `get_product_by_id`:** 2.
+- **Chamadas de `get_recommendation_candidates`:** 1.
+- **Chamadas de `get_cold_start_products`:** 1.
+- **Chamadas de `get_fallback_products`:** 1.
+- **Produto mais consultado individualmente:** produto de ID 1, com uma consulta bem-sucedida.
+- **Produtos nunca consultados individualmente:** IDs 2 a 11.
 
 ### A) Quais dados foram mais utilizados?
 
-Na execução analisada, os produtos de IDs `1`, `2`, `3`, `4`, `5`, `6`, `8`, `9` e `10` foram os mais presentes nos registros, com seis ocorrências cada. O produto de ID `7` apresentou cinco ocorrências.
+O produto de ID 1 foi o único produto do catálogo consultado individualmente com sucesso durante a execução controlada.
 
-Entre as funções, `get_product_by_id` teve o maior número de chamadas, com dez, seguida por `get_cold_start_products`, com seis, e `get_recommendation_candidates`, com cinco.
+A função `get_product_by_id` foi acionada duas vezes: uma para o produto existente de ID 1 e outra para o identificador inexistente 999.
 
-Esses resultados demonstram que a busca por produto foi a função mais acionada durante os testes e que todos os produtos apareceram nos resultados das funções de acesso.
+As demais funções foram acionadas uma vez cada. A função de candidatos retornou dez produtos, a função de Cold Start retornou nove produtos elegíveis e a função de fallback recuperou quatro produtos.
+
+Esses números representam chamadas às funções e consultas individuais, não visualizações ou cliques de usuários.
 
 ### B) Existem dados que nunca foram consultados? O que isso pode indicar?
 
-Não. Os dez produtos do catálogo apareceram pelo menos uma vez nos registros analisados. Isso indica que, durante os testes realizados, todos os produtos foram contemplados pelos resultados das funções de acesso.
+Sim. Os produtos de IDs 2 a 11 não foram consultados individualmente pela função `get_product_by_id` durante a execução controlada.
 
-Essa informação não significa que todos tiveram a mesma relevância para a recomendação nem que foram visualizados por usuários, pois a métrica contabiliza a presença dos identificadores nos resultados das funções de acesso.
+Isso indica que o conjunto de testes utilizou apenas o produto de ID 1 como produto de origem para a recomendação. Os outros produtos participaram dos resultados de candidatos, Cold Start ou fallback, mas isso não significa que tenham sido pesquisados individualmente.
+
+A distinção é importante porque a presença de um produto em uma lista de recomendações não comprova que ele foi solicitado diretamente por um usuário.
 
 ### C) Ocorreram erros? O que eles indicam?
 
-Não foram registrados erros técnicos (`status: error`). Foram identificadas cinco consultas sem resultado, relacionadas à busca pelo identificador inexistente `999`.
+Não foram registrados erros técnicos, pois nenhuma função apresentou o status `error`.
 
-Três dessas consultas já estavam registradas com o status `not_found`. Outras duas eram registros históricos que apresentavam `recordsReturned: 0`, mas estavam classificados anteriormente como `success`.
+Entretanto, ocorreu uma consulta sem resultado: a busca pelo identificador 999, que não existe no catálogo, foi registrada com o status `not_found`.
 
-Para considerar corretamente o histórico, o script `resumo.py` foi ajustado para reconhecer também as buscas de produto com zero registros retornados. Assim, os cinco casos passaram a ser contabilizados como consultas sem resultado.
+Esse comportamento demonstra que a função `get_product_by_id` trata a ausência de um produto de maneira controlada, retornando `None` e registrando zero resultados. Assim, uma consulta por identificador inexistente não precisa ser tratada como uma falha técnica do serviço.
 
-Isso demonstra que a função `get_product_by_id` trata a ausência de um produto de forma controlada: retorna `None`, registra zero resultados e permite que o serviço responda sem tratar a consulta inexistente como uma falha técnica.
-
-## 7. Declaração de uso de IA generativa
+## 9. Declaração de uso de IA generativa
 
 A IA generativa foi utilizada como apoio durante o desenvolvimento e a documentação do trabalho, especialmente para discutir a organização das funções de acesso, o registro dos eventos, a geração do resumo e a revisão do README.
 
-As sugestões foram analisadas e adaptadas ao código e aos requisitos do projeto. As alterações e os testes foram executados pela equipe, que conferiu as respostas dos endpoints e os registros produzidos. A IA foi utilizada como ferramenta de apoio, não como substituta da implementação, validação ou compreensão do funcionamento do sistema.
+As sugestões foram analisadas e adaptadas ao código e aos requisitos do projeto. As alterações e os testes foram executados pela equipe, que conferiu as respostas dos endpoints e os registros produzidos.
+
+A IA foi utilizada como ferramenta de apoio, não como substituta da implementação, validação ou compreensão do funcionamento do sistema.
+
+---
 
 ---
 

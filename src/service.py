@@ -1,4 +1,5 @@
 
+import os
 import time
 
 import bentoml
@@ -7,60 +8,29 @@ from fastapi import FastAPI, Header
 from src.data_access import (
     get_product_by_id,
     get_recommendation_candidates,
-    get_cold_start_products
+    get_cold_start_products,
+    get_fallback_products
 )
 
 app = FastAPI()
 
 
-# Cache pré-computado para o fallback
-fallback_cache = [
-    {
-        "productId": 3,
-        "title": "Bolsa Artesanal de Palha",
-        "category": "bolsas",
-        "municipality": "Tracunhaém",
-        "price": 109.90,
-        "imageUrl": "https://example.com/bolsa-artesanal.jpg",
-        "score": 1.0
-    },
-    {
-        "productId": 9,
-        "title": "Carteira de Palha",
-        "category": "bolsas",
-        "municipality": "Recife",
-        "price": 69.90,
-        "imageUrl": "https://example.com/carteira-palha.jpg",
-        "score": 0.7
-    },
-    {
-        "productId": 2,
-        "title": "Cesto Decorativo de Palha",
-        "category": "decoracao",
-        "municipality": "Tracunhaém",
-        "price": 59.90,
-        "imageUrl": "https://example.com/cesto-palha.jpg",
-        "score": 0.5
-    },
-    {
-        "productId": 4,
-        "title": "Chapéu de Palha Artesanal",
-        "category": "acessorios",
-        "municipality": "Tracunhaém",
-        "price": 49.90,
-        "imageUrl": "https://example.com/chapeu-palha.jpg",
-        "score": 0.5
-    }
-]
+# Configuração do fallback:
+# IDs dos produtos e suas respectivas pontuações.
+# Os dados dos produtos são recuperados pela camada de acesso.
+FALLBACK_PRODUCT_SCORES = {
+    3: 1.0,
+    9: 0.7,
+    2: 0.5,
+    4: 0.5
+}
 
 
 @bentoml.service
 @bentoml.asgi_app(app)
 class ManoaService:
 
-    # ==========================================
-    # RECOMENDAÇÃO BASEADA EM UM PRODUTO
-    # ==========================================
+    
 
     @app.get("/api/v1/recommendations/product/{productId}")
     def recommend_product(
@@ -73,11 +43,33 @@ class ManoaService:
         if simulateTimeout:
             time.sleep(0.16)
 
+            # Recupera os produtos do fallback pela camada de acesso
+            produtos_fallback = get_fallback_products(
+                list(FALLBACK_PRODUCT_SCORES.keys()),
+                "/api/v1/recommendations/product"
+            )
+
+            # Monta as recomendações com suas pontuações
+            recomendacoes_fallback = [
+                {
+                    "productId": produto["productId"],
+                    "title": produto["title"],
+                    "category": produto["category"],
+                    "municipality": produto["municipality"],
+                    "price": produto["price"],
+                    "imageUrl": produto["imageUrl"],
+                    "score": FALLBACK_PRODUCT_SCORES[
+                        produto["productId"]
+                    ]
+                }
+                for produto in produtos_fallback
+            ]
+
             return {
                 "productId": productId,
                 "strategy": "TIMEOUT_FALLBACK_CACHE",
                 "fallbackUsed": True,
-                "recommendations": fallback_cache
+                "recommendations": recomendacoes_fallback
             }
 
         # Busca o produto principal pela camada de acesso aos dados
@@ -141,10 +133,7 @@ class ManoaService:
             "recommendations": recomendacoes[:4]
         }
 
-    # ==========================================
-    # RECOMENDAÇÃO PARA USUÁRIO SEM HISTÓRICO
-    # COLD START
-    # ==========================================
+    
 
     @app.get("/api/v1/recommendations/home")
     def recommend_home(self, anonymousSessionId: str):
@@ -169,9 +158,7 @@ class ManoaService:
             "recommendations": recomendacoes
         }
 
-    # ==========================================
-    # ATUALIZAÇÃO DE CONFIGURAÇÃO
-    # ==========================================
+  
 
     @app.put("/api/v1/recommendations/config")
     def update_config(
@@ -180,11 +167,9 @@ class ManoaService:
         x_api_key: str = Header(None)
     ):
 
-        # Chave administrativa simulada
-        ADMIN_API_KEY = "manoa-admin-123"
+        admin_api_key = os.environ.get("MANOA_ADMIN_API_KEY")
 
-        # Valida a chave de administrador
-        if x_api_key != ADMIN_API_KEY:
+        if not admin_api_key or x_api_key != admin_api_key:
             return {
                 "error": "Não autorizado"
             }

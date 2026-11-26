@@ -153,3 +153,60 @@ def get_cold_start_products(caller):
             status="error"
         )
         raise
+    
+    
+
+def get_fallback_products(product_ids, caller):
+    """
+    Recupera os produtos utilizados no fallback
+    diretamente do catálogo e registra o acesso.
+    """
+
+    try:
+        produtos_por_id = {
+            item["productId"]: item
+            for item in catalogo
+        }
+
+        produtos = [
+            produtos_por_id[product_id]
+            for product_id in product_ids
+            if product_id in produtos_por_id
+        ]
+
+        ids_nao_encontrados = [
+            product_id
+            for product_id in product_ids
+            if product_id not in produtos_por_id
+        ]
+
+        registrar_acesso(
+            nome_funcao="get_fallback_products",
+            rota=caller,
+            parametros={
+                "productIds": product_ids,
+                "notFoundIds": ids_nao_encontrados
+            },
+            registros=len(produtos),
+            record_ids=[
+                produto["productId"] for produto in produtos
+            ],
+            status=(
+                "not_found"
+                if ids_nao_encontrados
+                else "success"
+            )
+        )
+
+        return produtos
+
+    except Exception:
+        registrar_acesso(
+            nome_funcao="get_fallback_products",
+            rota=caller,
+            parametros={"productIds": product_ids},
+            registros=0,
+            record_ids=[],
+            status="error"
+        )
+        raise

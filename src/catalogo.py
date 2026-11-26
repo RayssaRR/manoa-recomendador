@@ -1,3 +1,4 @@
+
 catalogo = [
     {
         "productId": 1,
@@ -106,7 +107,18 @@ catalogo = [
         "technique": "entalhe",
         "price": 159.90,
         "imageUrl": "https://example.com/painel-madeira.jpg",
-        "seloAutoriaCultural": True,
+        "seloAutoriaCultural": False,
         "stock": 4
+    },
+    {
+        "productId": 11,
+        "title": "Miniatura de Barco em Madeira",
+        "category": "miniaturas",
+        "municipality": "Petrolina",
+        "technique": "marchetaria",
+        "price": 189.90,
+        "imageUrl": "https://example.com/miniatura-barco.jpg",
+        "seloAutoriaCultural": True,
+        "stock": 0
     }
 ]
