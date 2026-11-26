@@ -1,9 +1,17 @@
+
 import time
+
 import bentoml
 from fastapi import FastAPI, Header
-from src.catalogo import catalogo
+
+from src.data_access import (
+    get_product_by_id,
+    get_recommendation_candidates,
+    get_cold_start_products
+)
 
 app = FastAPI()
+
 
 # Cache pré-computado para o fallback
 fallback_cache = [
@@ -45,13 +53,23 @@ fallback_cache = [
     }
 ]
 
+
 @bentoml.service
 @bentoml.asgi_app(app)
 class ManoaService:
 
+    # ==========================================
+    # RECOMENDAÇÃO BASEADA EM UM PRODUTO
+    # ==========================================
+
     @app.get("/api/v1/recommendations/product/{productId}")
-    def recommend_product(self, productId: int, simulateTimeout: bool = False):
-                # Simula uma consulta que ultrapassou o limite de 150 ms
+    def recommend_product(
+        self,
+        productId: int,
+        simulateTimeout: bool = False
+    ):
+
+        # Simula uma consulta que ultrapassou o limite de 150 ms
         if simulateTimeout:
             time.sleep(0.16)
 
@@ -62,11 +80,10 @@ class ManoaService:
                 "recommendations": fallback_cache
             }
 
-        # Procura o produto solicitado
-        produto_principal = next(
-            (produto for produto in catalogo
-             if produto["productId"] == productId),
-            None
+        # Busca o produto principal pela camada de acesso aos dados
+        produto_principal = get_product_by_id(
+            productId,
+            "/api/v1/recommendations/product"
         )
 
         # Caso o produto não exista
@@ -75,14 +92,16 @@ class ManoaService:
                 "error": "Produto não encontrado"
             }
 
+        # Recupera os produtos candidatos pela camada de acesso
+        produtos_candidatos = get_recommendation_candidates(
+            productId,
+            "/api/v1/recommendations/product"
+        )
+
         # Calcula a similaridade de cada produto
         recomendacoes = []
 
-        for produto in catalogo:
-
-            # Não recomenda o próprio produto
-            if produto["productId"] == productId:
-                continue
+        for produto in produtos_candidatos:
 
             score = 0.0
 
@@ -122,15 +141,18 @@ class ManoaService:
             "recommendations": recomendacoes[:4]
         }
 
+    # ==========================================
+    # RECOMENDAÇÃO PARA USUÁRIO SEM HISTÓRICO
+    # COLD START
+    # ==========================================
+
     @app.get("/api/v1/recommendations/home")
     def recommend_home(self, anonymousSessionId: str):
 
-        # Seleciona produtos com autoria cultural e estoque disponível
-        produtos_disponiveis = [
-            produto for produto in catalogo
-            if produto["seloAutoriaCultural"] is True
-            and produto["stock"] > 0
-        ]
+        # Recupera os produtos pela camada de acesso aos dados
+        produtos_disponiveis = get_cold_start_products(
+            "/api/v1/recommendations/home"
+        )
 
         # Ordena pelo maior estoque
         produtos_disponiveis.sort(
@@ -146,7 +168,11 @@ class ManoaService:
             "strategy": "COLD_START",
             "recommendations": recomendacoes
         }
-    
+
+    # ==========================================
+    # ATUALIZAÇÃO DE CONFIGURAÇÃO
+    # ==========================================
+
     @app.put("/api/v1/recommendations/config")
     def update_config(
         self,
