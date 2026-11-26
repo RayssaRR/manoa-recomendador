@@ -1,1005 +1,1015 @@
-# Manoa — Mock do Módulo de Recomendação
-
-Mock do módulo de recomendação da plataforma **Manoa**, um marketplace de artesanato autêntico de Pernambuco.
-
-O projeto foi desenvolvido inicialmente para a AV1 da disciplina de Inteligência Artificial e ampliado para a AV2. Na AV1, o serviço simulava as estratégias de recomendação. Na AV2, o módulo passou a consultar os dados por meio de funções de acesso centralizadas, registrar cada acesso em um arquivo JSONL e gerar um resumo de utilização.
-
-O serviço utiliza Python, BentoML e FastAPI. O catálogo atual contém 11 produtos fictícios de artesanato pernambucano. Não são utilizados dados pessoais reais.
-
-
-## Integrantes
-
-<table width="100%">
-  <tr>
-    <td align="center" width="33%">
-      <a href="https://github.com/emanoelhenrick">
-        <img src="https://github.com/emanoelhenrick.png" width="90px" style="border-radius:50%;" alt="Emanoel Henrick"/><br />
-        <b>Emanoel Henrick</b>
-      </a>
-    </td>
-    <td align="center" width="33%">
-      <a href="https://github.com/jenniferzeferino">
-        <img src="https://github.com/jenniferzeferino.png" width="90px" style="border-radius:50%;" alt="Jennifer Zeferino"/><br />
-        <b>Jennifer Zeferino</b>
-      </a>
-    </td>
-    <td align="center" width="33%">
-      <a href="https://github.com/RaieleLeite">
-        <img src="https://github.com/RaieleLeite.png" width="90px" style="border-radius:50%;" alt="Raiele Leite"/><br />
-        <b>Raiele Leite</b>
-      </a>
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="33%">
-      <a href="https://github.com/RayssaRR">
-        <img src="https://github.com/RayssaRR.png" width="90px" style="border-radius:50%;" alt="Rayssa Santana"/><br />
-        <b>Rayssa Santana</b>
-      </a>
-    </td>
-    <td align="center" width="33%">
-      <a href="https://github.com/FelipeLV12">
-        <img src="https://github.com/FelipeLV12.png" width="90px" style="border-radius:50%;" alt="Felipe Lopes"/><br />
-        <b>Felipe Lopes</b>
-      </a>
-    </td>
-    <td align="center" width="33%">
-      <a href="https://github.com/injuje">
-        <img src="https://github.com/injuje.png" width="90px" style="border-radius:50%;" alt="José Leandro"/><br />
-        <b>José Leandro</b>
-      </a>
-    </td>
-  </tr>
-</table>
+  # Manoa — Mock do Módulo de Recomendação
+
+  Mock do módulo de recomendação da plataforma **Manoa**, um marketplace de artesanato autêntico de Pernambuco.
+
+  O projeto foi desenvolvido inicialmente para a AV1 da disciplina de Inteligência Artificial e ampliado para a AV2. Na AV1, o serviço simulava as estratégias de recomendação. Na AV2, o módulo passou a consultar os dados por meio de funções de acesso centralizadas, registrar cada acesso em um arquivo JSONL e gerar um resumo de utilização.
+
+  O serviço utiliza Python, BentoML e FastAPI. O catálogo atual contém 11 produtos fictícios de artesanato pernambucano. Não são utilizados dados pessoais reais.
+
+
+  ## Integrantes
+
+  <table width="100%">
+    <tr>
+      <td align="center" width="33%">
+        <a href="https://github.com/emanoelhenrick">
+          <img src="https://github.com/emanoelhenrick.png" width="90px" style="border-radius:50%;" alt="Emanoel Henrick"/><br />
+          <b>Emanoel Henrick</b>
+        </a>
+      </td>
+      <td align="center" width="33%">
+        <a href="https://github.com/jenniferzeferino">
+          <img src="https://github.com/jenniferzeferino.png" width="90px" style="border-radius:50%;" alt="Jennifer Zeferino"/><br />
+          <b>Jennifer Zeferino</b>
+        </a>
+      </td>
+      <td align="center" width="33%">
+        <a href="https://github.com/RaieleLeite">
+          <img src="https://github.com/RaieleLeite.png" width="90px" style="border-radius:50%;" alt="Raiele Leite"/><br />
+          <b>Raiele Leite</b>
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" width="33%">
+        <a href="https://github.com/RayssaRR">
+          <img src="https://github.com/RayssaRR.png" width="90px" style="border-radius:50%;" alt="Rayssa Santana"/><br />
+          <b>Rayssa Santana</b>
+        </a>
+      </td>
+      <td align="center" width="33%">
+        <a href="https://github.com/FelipeLV12">
+          <img src="https://github.com/FelipeLV12.png" width="90px" style="border-radius:50%;" alt="Felipe Lopes"/><br />
+          <b>Felipe Lopes</b>
+        </a>
+      </td>
+      <td align="center" width="33%">
+        <a href="https://github.com/injuje">
+          <img src="https://github.com/injuje.png" width="90px" style="border-radius:50%;" alt="José Leandro"/><br />
+          <b>José Leandro</b>
+        </a>
+      </td>
+    </tr>
+  </table>
 
 
----
+  ---
 
-## Tecnologias
+  ## Tecnologias
 
-- Python
-- BentoML
-- FastAPI
-- JSONL para registro dos acessos
-- `collections.Counter` para consolidação das estatísticas
+  - Python
+  - BentoML
+  - FastAPI
+  - JSONL para registro dos acessos
+  - `collections.Counter` para consolidação das estatísticas
 
----
+  ---
 
-# AV2 — Dados, funções de acesso e rastreabilidade
+  # AV2 — Dados, funções de acesso e rastreabilidade
 
-## 1. Instalação e execução
+  ## 1. Instalação e execução
 
-### 1.1. Clonar o repositório
+  ### 1.1. Clonar o repositório
 
-No Windows PowerShell:
+  No Windows PowerShell:
 
-```powershell
-git clone https://github.com/RayssaRR/manoa-recomendador.git
-cd manoa-recomendador
-```
+  ```powershell
+  git clone https://github.com/RayssaRR/manoa-recomendador.git
+  cd manoa-recomendador
+  ```
 
-### 1.2. Criar o ambiente virtual
+  ### 1.2. Criar o ambiente virtual
 
-```powershell
-python -m venv .venv
-```
+  ```powershell
+  python -m venv .venv
+  ```
 
-### 1.3. Ativar o ambiente virtual
+  ### 1.3. Ativar o ambiente virtual
 
-```powershell
-.\.venv\Scripts\Activate.ps1
-```
+  ```powershell
+  .\.venv\Scripts\Activate.ps1
+  ```
 
-Se o PowerShell bloquear a ativação nesta sessão, execute:
+  Se o PowerShell bloquear a ativação nesta sessão, execute:
 
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
-.\.venv\Scripts\Activate.ps1
-```
+  ```powershell
+  Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+  .\.venv\Scripts\Activate.ps1
+  ```
 
-### 1.4. Instalar as dependências
+  ### 1.4. Instalar as dependências
 
-```powershell
-pip install -r requirements.txt
-```
+  ```powershell
+  pip install -r requirements.txt
+  ```
 
-### 1.5. Configurar a chave administrativa (necessária para RF-03)
+  ### 1.5. Configurar a chave administrativa (necessária para RF-03)
 
-O endpoint de configuração lê a variável de ambiente `MANOA_ADMIN_API_KEY`. Defina a variável no mesmo terminal em que o serviço será iniciado.
+  O endpoint de configuração lê a variável de ambiente `MANOA_ADMIN_API_KEY`. Defina a variável no mesmo terminal em que o serviço será iniciado.
 
-Windows PowerShell:
+  Windows PowerShell:
 
-```powershell
-$env:MANOA_ADMIN_API_KEY = "manoa-admin-123"
-```
+  ```powershell
+  $env:MANOA_ADMIN_API_KEY = "manoa-admin-123"
+  ```
 
-Linux/macOS:
+  Linux/macOS:
 
-```bash
-export MANOA_ADMIN_API_KEY="manoa-admin-123"
-```
+  ```bash
+  export MANOA_ADMIN_API_KEY="manoa-admin-123"
+  ```
 
-A chave acima é fictícia e utilizada somente para este mock.
+  A chave acima é fictícia e utilizada somente para este mock.
 
-### 1.6. Iniciar o serviço
+  ### 1.6. Iniciar o serviço
 
-Na raiz do projeto, com o ambiente virtual ativado e a variável configurada quando for testar o RF-03:
+  Na raiz do projeto, com o ambiente virtual ativado e a variável configurada quando for testar o RF-03:
 
-```powershell
-bentoml serve src/service.py
-```
+  ```powershell
+  bentoml serve src/service.py
+  ```
 
-No Linux/macOS, o comando de inicialização é o mesmo:
+  No Linux/macOS, o comando de inicialização é o mesmo:
 
-```bash
-bentoml serve src/service.py
-```
+  ```bash
+  bentoml serve src/service.py
+  ```
 
-O serviço ficará disponível localmente em:
+  O serviço ficará disponível localmente em:
 
-```text
-http://localhost:3000
-```
+  ```text
+  http://localhost:3000
+  ```
 
-Mantenha esse terminal aberto enquanto realiza os testes. Abra um segundo terminal PowerShell, ative o ambiente virtual e entre na pasta do projeto para executar as chamadas HTTP e os comandos de análise.
+  Mantenha esse terminal aberto enquanto realiza os testes. Abra um segundo terminal PowerShell, ative o ambiente virtual e entre na pasta do projeto para executar as chamadas HTTP e os comandos de análise.
 
-## 2. Estrutura do projeto
+  ## 2. Estrutura do projeto
 
-A estrutura atual do repositório é:
+  A estrutura atual do repositório é:
 
-```text
-manoa-recomendador/
-├── logs/
-│   └── acessos.jsonl
-├── src/
-│   ├── __init__.py
-│   ├── catalogo.py
-│   ├── data_access.py
-│   ├── resumo.py
-│   └── service.py
-├── requirements.txt
-├── README.md
-└── .gitignore
-```
+  ```text
+  manoa-recomendador/
+  ├── logs/
+  │   └── acessos.jsonl
+  ├── src/
+  │   ├── __init__.py
+  │   ├── catalogo.py
+  │   ├── data_access.py
+  │   ├── resumo.py
+  │   └── service.py
+  ├── requirements.txt
+  ├── README.md
+  └── .gitignore
+  ```
 
-### Arquivos do projeto
+  ### Arquivos do projeto
 
-- `src/catalogo.py`: mantém o catálogo fictício de produtos utilizado nas recomendações.
-- `src/service.py`: implementa o serviço BentoML/FastAPI e os endpoints do módulo de recomendação.
-- `src/data_access.py`: centraliza as funções de acesso ao catálogo e registra cada chamada no log.
-- `src/resumo.py`: lê o arquivo JSONL e apresenta as estatísticas de utilização.
-- `logs/acessos.jsonl`: armazena, em formato JSON Lines, o histórico de chamadas às funções.
-- `requirements.txt`: contém as dependências necessárias para executar o projeto.
+  - `src/catalogo.py`: mantém o catálogo fictício de produtos utilizado nas recomendações.
+  - `src/service.py`: implementa o serviço BentoML/FastAPI e os endpoints do módulo de recomendação.
+  - `src/data_access.py`: centraliza as funções de acesso ao catálogo e registra cada chamada no log.
+  - `src/resumo.py`: lê o arquivo JSONL e apresenta as estatísticas de utilização.
+  - `logs/acessos.jsonl`: armazena, em formato JSON Lines, o histórico de chamadas às funções.
+  - `requirements.txt`: contém as dependências necessárias para executar o projeto.
 
-O arquivo `logs/acessos.jsonl` é criado automaticamente quando uma função de acesso registra sua primeira chamada. O arquivo `src/__init__.py` identifica o diretório `src` como pacote Python.
+  O arquivo `logs/acessos.jsonl` é criado automaticamente quando uma função de acesso registra sua primeira chamada. O arquivo `src/__init__.py` identifica o diretório `src` como pacote Python.
 
-## 3. Dicionário de dados
+  ## 3. Dicionário de dados
 
-### 3.1. Fonte e versão dos dados
+  ### 3.1. Fonte e versão dos dados
 
-Os dados utilizados são mantidos localmente em `src/catalogo.py`.
+  Os dados utilizados são mantidos localmente em `src/catalogo.py`.
 
-O catálogo atual contém **11 registros fictícios de produtos artesanais**. Essa versão permite executar e repetir os testes sem depender de banco de dados ou serviço externo.
+  O catálogo atual contém **11 registros fictícios de produtos artesanais**. Essa versão permite executar e repetir os testes sem depender de banco de dados ou serviço externo.
 
-Não há dados pessoais de compradores, vendedores ou usuários reais.
+  Não há dados pessoais de compradores, vendedores ou usuários reais.
 
-### 3.2. Campos utilizados
+  ### 3.2. Campos utilizados
 
-| Campo | Tipo | Significado no negócio |
-|---|---|---|
-| `productId` | Inteiro | Identificador único do produto no catálogo |
-| `title` | Texto | Nome comercial do produto |
-| `category` | Texto | Categoria usada para agrupar produtos semelhantes |
-| `municipality` | Texto | Município associado à produção ou origem artesanal |
-| `technique` | Texto | Técnica artesanal utilizada na produção |
-| `price` | Número | Preço fictício do produto |
-| `imageUrl` | Texto (URL) | Endereço ilustrativo da imagem do produto |
-| `seloAutoriaCultural` | Booleano | Indica se o produto possui o selo de autoria cultural |
-| `stock` | Inteiro | Quantidade fictícia disponível em estoque |
+  | Campo | Tipo | Significado no negócio |
+  |---|---|---|
+  | `productId` | Inteiro | Identificador único do produto no catálogo |
+  | `title` | Texto | Nome comercial do produto |
+  | `category` | Texto | Categoria usada para agrupar produtos semelhantes |
+  | `municipality` | Texto | Município associado à produção ou origem artesanal |
+  | `technique` | Texto | Técnica artesanal utilizada na produção |
+  | `price` | Número | Preço fictício do produto |
+  | `imageUrl` | Texto (URL) | Endereço ilustrativo da imagem do produto |
+  | `seloAutoriaCultural` | Booleano | Indica se o produto possui o selo de autoria cultural |
+  | `stock` | Inteiro | Quantidade fictícia disponível em estoque |
 
-### 3.3. Regra de seleção do Cold Start
+  ### 3.3. Regra de seleção do Cold Start
 
-A estratégia `COLD_START` não depende de histórico de navegação ou compra. Ela seleciona produtos que atendam simultaneamente aos seguintes critérios:
+  A estratégia `COLD_START` não depende de histórico de navegação ou compra. Ela seleciona produtos que atendam simultaneamente aos seguintes critérios:
 
-- `seloAutoriaCultural == true`;
-- `stock > 0`.
+  - `seloAutoriaCultural == true`;
+  - `stock > 0`.
 
-Depois da filtragem, o serviço ordena os produtos elegíveis pelo estoque em ordem decrescente e retorna até quatro recomendações.
+  Depois da filtragem, o serviço ordena os produtos elegíveis pelo estoque em ordem decrescente e retorna até quatro recomendações.
 
-Na versão atual, existem nove produtos elegíveis.
+  Na versão atual, existem nove produtos elegíveis.
 
-### 3.4. Casos difíceis previstos nos dados
+  ### 3.4. Casos difíceis previstos nos dados
 
-O projeto possui casos que permitem verificar o comportamento das funções de acesso e das regras de negócio:
+  O projeto possui casos que permitem verificar o comportamento das funções de acesso e das regras de negócio:
 
-- **Produto ID 999:** identificador inexistente no catálogo. A busca deve retornar ausência de resultado, sem interromper o serviço, e registrar o status `not_found`.
-- **Produto ID 10:** não possui selo de autoria cultural (`seloAutoriaCultural == false`), portanto não deve ser selecionado no Cold Start.
-- **Produto ID 11:** possui estoque igual a zero (`stock == 0`), portanto também não deve ser selecionado no Cold Start.
-  Além disso, sua categoria (`miniaturas`), município (`Petrolina`) e técnica (`marchetaria`) não coincidem com os atributos dos demais produtos do catálogo. Ao consultar `/api/v1/recommendations/product/11`, os candidatos recebem `score` igual a `0.0`; como o endpoint retorna os quatro primeiros, a resposta apresenta quatro recomendações empatadas com score zero.
+  - **Produto ID 999:** identificador inexistente no catálogo. A busca deve retornar ausência de resultado, sem interromper o serviço, e registrar o status `not_found`.
+  - **Produto ID 10:** não possui selo de autoria cultural (`seloAutoriaCultural == false`), portanto não deve ser selecionado no Cold Start.
+  - **Produto ID 11:** possui estoque igual a zero (`stock == 0`), portanto também não deve ser selecionado no Cold Start.
+    Além disso, sua categoria (`miniaturas`), município (`Petrolina`) e técnica (`marchetaria`) não coincidem com os atributos dos demais produtos do catálogo. Ao consultar `/api/v1/recommendations/product/11`, os candidatos recebem `score` igual a `0.0`; como o endpoint retorna os quatro primeiros, a resposta apresenta quatro recomendações empatadas com score zero.
 
-Esses casos permitem verificar tanto o tratamento de identificadores inexistentes quanto a aplicação dos critérios de elegibilidade.
+  Esses casos permitem verificar tanto o tratamento de identificadores inexistentes quanto a aplicação dos critérios de elegibilidade.
 
-### 3.5. Validação das regras de seleção
+  ### 3.5. Validação das regras de seleção
 
-Foi realizada uma verificação direta do catálogo e dos critérios utilizados pelo Cold Start.
+  Foi realizada uma verificação direta do catálogo e dos critérios utilizados pelo Cold Start.
 
-Resultado obtido:
+  Resultado obtido:
 
-```text
-Total no catálogo: 11
-Total elegível: 9
-IDs elegíveis: [1, 2, 3, 4, 5, 6, 7, 8, 9]
-```
+  ```text
+  Total no catálogo: 11
+  Total elegível: 9
+  IDs elegíveis: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  ```
 
-O resultado confirma que os produtos de IDs 1 a 9 atendem aos critérios de selo e estoque disponível.
+  O resultado confirma que os produtos de IDs 1 a 9 atendem aos critérios de selo e estoque disponível.
 
-Os produtos 10 e 11 são excluídos por motivos diferentes: ausência do selo de autoria cultural e ausência de estoque, respectivamente.
+  Os produtos 10 e 11 são excluídos por motivos diferentes: ausência do selo de autoria cultural e ausência de estoque, respectivamente.
 
-### 3.6. Experiência de alteração de dado — impacto no Cold Start
+  ### 3.6. Experiência de alteração de dado — impacto no Cold Start
 
-Esta experiência demonstra que uma alteração no catálogo modifica a resposta do módulo. O teste utiliza o produto 7, cujo estoque original é 20.
+  Esta experiência demonstra que uma alteração no catálogo modifica a resposta do módulo. O teste utiliza o produto 7, cujo estoque original é 20.
 
-1. Com o serviço em execução e o estoque do produto 7 igual a `20` em `src/catalogo.py`, consulte o Cold Start:
+  1. Com o serviço em execução e o estoque do produto 7 igual a `20` em `src/catalogo.py`, consulte o Cold Start:
 
-   ```powershell
-   curl.exe "http://localhost:3000/api/v1/recommendations/home?anonymousSessionId=antes-alteracao"
-   ```
+    ```powershell
+    curl.exe "http://localhost:3000/api/v1/recommendations/home?anonymousSessionId=antes-alteracao"
+    ```
 
-   No Linux/macOS:
+    No Linux/macOS:
 
-   ```bash
-   curl "http://localhost:3000/api/v1/recommendations/home?anonymousSessionId=antes-alteracao"
-   ```
+    ```bash
+    curl "http://localhost:3000/api/v1/recommendations/home?anonymousSessionId=antes-alteracao"
+    ```
 
-   A resposta esperada inclui o produto 7 entre as recomendações. Com o catálogo atual, os quatro primeiros são os produtos 7, 6, 2 e 4.
+    A resposta esperada inclui o produto 7 entre as recomendações. Com o catálogo atual, os quatro primeiros são os produtos 7, 6, 2 e 4.
 
-2. Pare o servidor (`Ctrl+C`). Abra `src/catalogo.py` e altere temporariamente o campo `stock` do produto de `productId: 7` de `20` para `0`. Não altere o estoque de outros produtos.
-3. Inicie novamente o servidor e repita a consulta:
+  2. Pare o servidor (`Ctrl+C`). Abra `src/catalogo.py` e altere temporariamente o campo `stock` do produto de `productId: 7` de `20` para `0`. Não altere o estoque de outros produtos.
+  3. Inicie novamente o servidor e repita a consulta:
 
-   ```powershell
-   curl.exe "http://localhost:3000/api/v1/recommendations/home?anonymousSessionId=depois-alteracao"
-   ```
+    ```powershell
+    curl.exe "http://localhost:3000/api/v1/recommendations/home?anonymousSessionId=depois-alteracao"
+    ```
 
-   No Linux/macOS:
+    No Linux/macOS:
 
-   ```bash
-   curl "http://localhost:3000/api/v1/recommendations/home?anonymousSessionId=depois-alteracao"
-   ```
+    ```bash
+    curl "http://localhost:3000/api/v1/recommendations/home?anonymousSessionId=depois-alteracao"
+    ```
 
-   O produto 7 não deve aparecer, pois o Cold Start exige `stock > 0`. Com os valores atuais do catálogo, os quatro primeiros passam a ser os produtos 6, 2, 4 e 1.
+    O produto 7 não deve aparecer, pois o Cold Start exige `stock > 0`. Com os valores atuais do catálogo, os quatro primeiros passam a ser os produtos 6, 2, 4 e 1.
 
-4. Pare o servidor e restaure o estoque do produto 7 para `20` em `src/catalogo.py`. Inicie o serviço novamente para deixar o catálogo na condição original.
+  4. Pare o servidor e restaure o estoque do produto 7 para `20` em `src/catalogo.py`. Inicie o serviço novamente para deixar o catálogo na condição original.
 
-Cada consulta ao endpoint aciona `get_cold_start_products` e acrescenta uma linha ao `logs/acessos.jsonl`. Compare o campo `recordIds` das duas chamadas: antes da alteração ele inclui o ID 7; depois da alteração ele não inclui o ID 7. As linhas do log registram os IDs retornados, enquanto a comparação das respostas HTTP demonstra a mudança na lista de recomendações.
+  Cada consulta ao endpoint aciona `get_cold_start_products` e acrescenta uma linha ao `logs/acessos.jsonl`. Compare o campo `recordIds` das duas chamadas: antes da alteração ele inclui o ID 7; depois da alteração ele não inclui o ID 7. As linhas do log registram os IDs retornados, enquanto a comparação das respostas HTTP demonstra a mudança na lista de recomendações.
 
-**Importante:** a alteração para estoque zero é temporária, feita somente para a demonstração. Ao final do teste, o valor original `20` deve ser restaurado.
+  **Importante:** a alteração para estoque zero é temporária, feita somente para a demonstração. Ao final do teste, o valor original `20` deve ser restaurado.
 
-## 4. Funções de acesso aos dados
+  ## 4. Funções de acesso aos dados
 
-O módulo de recomendação acessa o catálogo por meio das funções centralizadas em `src/data_access.py`.
+  O módulo de recomendação acessa o catálogo por meio das funções centralizadas em `src/data_access.py`.
 
-As rotas do serviço utilizam essas funções para consultar os dados, evitando que cada endpoint implemente diretamente sua própria lógica de acesso ao catálogo.
+  As rotas do serviço utilizam essas funções para consultar os dados, evitando que cada endpoint implemente diretamente sua própria lógica de acesso ao catálogo.
 
-### 4.1. Funções implementadas
+  ### 4.1. Funções implementadas
 
-| Função | Parâmetros | Responsabilidade |
-|---|---|---|
-| `get_product_by_id(product_id, caller)` | ID do produto e rota chamadora | Busca um produto específico pelo identificador |
-| `get_recommendation_candidates(product_id, caller)` | ID do produto e rota chamadora | Recupera produtos candidatos, excluindo o próprio produto consultado |
-| `get_cold_start_products(caller)` | Rota chamadora | Recupera produtos com selo de autoria cultural e estoque disponível |
-| `get_fallback_products(product_ids, caller)` | Lista de IDs e rota chamadora | Recupera os produtos utilizados na estratégia de fallback |
+  | Função | Parâmetros | Responsabilidade |
+  |---|---|---|
+  | `get_product_by_id(product_id, caller)` | ID do produto e rota chamadora | Busca um produto específico pelo identificador |
+  | `get_recommendation_candidates(product_id, caller)` | ID do produto e rota chamadora | Recupera produtos candidatos, excluindo o próprio produto consultado |
+  | `get_cold_start_products(caller)` | Rota chamadora | Recupera produtos com selo de autoria cultural e estoque disponível |
+  | `get_fallback_products(product_ids, caller)` | Lista de IDs e rota chamadora | Recupera os produtos utilizados na estratégia de fallback |
 
-### 4.2. Tratamento de resultados e erros
+  ### 4.2. Tratamento de resultados e erros
 
-As funções tratam os resultados de acordo com o tipo de consulta:
+  As funções tratam os resultados de acordo com o tipo de consulta:
 
-- Uma busca por produto inexistente é registrada como `not_found`, com zero registros retornados.
-- Uma chamada executada normalmente é registrada como `success`.
-- Uma exceção durante a execução é registrada como `error` e propagada novamente.
-- A função de candidatos exclui o produto de origem para evitar recomendá-lo a si mesmo.
-- A função de Cold Start retorna somente produtos que atendem aos critérios de selo e estoque.
-- A função de fallback recupera os produtos definidos para a estratégia alternativa.
+  - Uma busca por produto inexistente é registrada como `not_found`, com zero registros retornados.
+  - Uma chamada executada normalmente é registrada como `success`.
+  - Uma exceção durante a execução é registrada como `error` e propagada novamente.
+  - A função de candidatos exclui o produto de origem para evitar recomendá-lo a si mesmo.
+  - A função de Cold Start retorna somente produtos que atendem aos critérios de selo e estoque.
+  - A função de fallback recupera os produtos definidos para a estratégia alternativa.
 
-Todas as funções registram seus acessos por meio de `registrar_acesso()`, também definida em `src/data_access.py`.
+  Todas as funções registram seus acessos por meio de `registrar_acesso()`, também definida em `src/data_access.py`.
 
-## 5. Registro dos acessos
+  ## 5. Registro dos acessos
 
-Cada chamada a uma função de acesso acrescenta uma linha ao arquivo:
+  Cada chamada a uma função de acesso acrescenta uma linha ao arquivo:
 
-```text
-logs/acessos.jsonl
-```
+  ```text
+  logs/acessos.jsonl
+  ```
 
-O arquivo utiliza o formato JSON Lines: cada linha é um objeto JSON independente.
+  O arquivo utiliza o formato JSON Lines: cada linha é um objeto JSON independente.
 
-O registro é feito em modo de acréscimo (`a`), portanto as novas chamadas são adicionadas ao final do arquivo, sem sobrescrever o histórico.
+  O registro é feito em modo de acréscimo (`a`), portanto as novas chamadas são adicionadas ao final do arquivo, sem sobrescrever o histórico.
 
-### 5.1. Campos registrados
+  ### 5.1. Campos registrados
 
-| Campo | Conteúdo |
-|---|---|
-| `timestamp` | Data e hora do acesso, com fuso horário |
-| `function` | Nome da função de acesso chamada |
-| `caller` | Rota que originou a chamada |
-| `parameters` | Parâmetros resumidos, como o ID do produto |
-| `recordsReturned` | Quantidade de registros retornados |
-| `recordIds` | Identificadores dos produtos retornados |
-| `status` | Resultado: `success`, `not_found` ou `error` |
+  | Campo | Conteúdo |
+  |---|---|
+  | `timestamp` | Data e hora do acesso, com fuso horário |
+  | `function` | Nome da função de acesso chamada |
+  | `caller` | Rota que originou a chamada |
+  | `parameters` | Parâmetros resumidos, como o ID do produto |
+  | `recordsReturned` | Quantidade de registros retornados |
+  | `recordIds` | Identificadores dos produtos retornados |
+  | `status` | Resultado: `success`, `not_found` ou `error` |
 
-### 5.2. Exemplo de chamada bem-sucedida
+  ### 5.2. Exemplo de chamada bem-sucedida
 
-```json
-{
-  "timestamp": "2026-11-26T12:56:07.986396-03:00",
-  "function": "get_product_by_id",
-  "caller": "/api/v1/recommendations/product",
-  "parameters": {
-    "productId": 1
-  },
-  "recordsReturned": 1,
-  "recordIds": [1],
-  "status": "success"
-}
-```
+  ```json
+  {
+    "timestamp": "2026-11-26T12:56:07.986396-03:00",
+    "function": "get_product_by_id",
+    "caller": "/api/v1/recommendations/product",
+    "parameters": {
+      "productId": 1
+    },
+    "recordsReturned": 1,
+    "recordIds": [1],
+    "status": "success"
+  }
+  ```
 
-### 5.3. Exemplo de consulta sem resultado
+  ### 5.3. Exemplo de consulta sem resultado
 
-```json
-{
-  "timestamp": "2026-11-26T12:56:11.541606-03:00",
-  "function": "get_product_by_id",
-  "caller": "/api/v1/recommendations/product",
-  "parameters": {
-    "productId": 999
-  },
-  "recordsReturned": 0,
-  "recordIds": [],
-  "status": "not_found"
-}
-```
+  ```json
+  {
+    "timestamp": "2026-11-26T12:56:11.541606-03:00",
+    "function": "get_product_by_id",
+    "caller": "/api/v1/recommendations/product",
+    "parameters": {
+      "productId": 999
+    },
+    "recordsReturned": 0,
+    "recordIds": [],
+    "status": "not_found"
+  }
+  ```
 
-O campo `recordIds` permite identificar quais produtos foram retornados pelas funções de acesso. Ele não representa, por si só, visualizações, cliques ou compras de usuários.
+  O campo `recordIds` permite identificar quais produtos foram retornados pelas funções de acesso. Ele não representa, por si só, visualizações, cliques ou compras de usuários.
 
-## 6. Gerar o log — chamadas reproduzíveis
+  ## 6. Gerar o log — chamadas reproduzíveis
 
-Com o serviço em execução na porta `3000`, abra um segundo terminal PowerShell na raiz do projeto.
+  Com o serviço em execução na porta `3000`, abra um segundo terminal PowerShell na raiz do projeto.
 
-Execute as quatro chamadas abaixo, nesta ordem, para exercitar as funções de acesso e o caso difícil.
+  Execute as quatro chamadas abaixo, nesta ordem, para exercitar as funções de acesso e o caso difícil.
 
-### Chamada 1 — Buscar recomendações para o produto 1
+  ### Chamada 1 — Buscar recomendações para o produto 1
 
-```powershell
-curl.exe "http://localhost:3000/api/v1/recommendations/product/1"
-```
+  ```powershell
+  curl.exe "http://localhost:3000/api/v1/recommendations/product/1"
+  ```
 
-Essa requisição aciona duas funções:
+  Essa requisição aciona duas funções:
 
-- `get_product_by_id`: busca o produto de origem;
-- `get_recommendation_candidates`: recupera os demais produtos do catálogo.
+  - `get_product_by_id`: busca o produto de origem;
+  - `get_recommendation_candidates`: recupera os demais produtos do catálogo.
 
-Por isso, uma única requisição HTTP gera duas linhas no log.
+  Por isso, uma única requisição HTTP gera duas linhas no log.
 
-### Chamada 2 — Consultar um produto inexistente
+  ### Chamada 2 — Consultar um produto inexistente
 
-```powershell
-curl.exe "http://localhost:3000/api/v1/recommendations/product/999"
-```
+  ```powershell
+  curl.exe "http://localhost:3000/api/v1/recommendations/product/999"
+  ```
 
-Essa chamada exercita o caso difícil. A busca não encontra o produto e deve registrar `not_found`, com `recordsReturned` igual a `0` e `recordIds` vazio.
+  Essa chamada exercita o caso difícil. A busca não encontra o produto e deve registrar `not_found`, com `recordsReturned` igual a `0` e `recordIds` vazio.
 
-### Chamada 3 — Executar Cold Start
+  ### Chamada 3 — Executar Cold Start
 
-```powershell
-curl.exe "http://localhost:3000/api/v1/recommendations/home?anonymousSessionId=teste-final"
-```
+  ```powershell
+  curl.exe "http://localhost:3000/api/v1/recommendations/home?anonymousSessionId=teste-final"
+  ```
 
-Essa requisição aciona `get_cold_start_products` e retorna até quatro produtos elegíveis, ordenados pelo estoque.
+  Essa requisição aciona `get_cold_start_products` e retorna até quatro produtos elegíveis, ordenados pelo estoque.
 
-### Chamada 4 — Executar fallback simulado
+  ### Chamada 4 — Executar fallback simulado
 
-```powershell
-curl.exe "http://localhost:3000/api/v1/recommendations/product/1?simulateTimeout=true"
-```
+  ```powershell
+  curl.exe "http://localhost:3000/api/v1/recommendations/product/1?simulateTimeout=true"
+  ```
 
-Essa chamada simula o cenário de timeout e aciona `get_fallback_products`, que recupera os produtos previamente definidos para a estratégia alternativa.
+  Essa chamada simula o cenário de timeout e aciona `get_fallback_products`, que recupera os produtos previamente definidos para a estratégia alternativa.
 
-A resposta deve apresentar:
+  A resposta deve apresentar:
 
-```json
-{
-  "strategy": "TIMEOUT_FALLBACK_CACHE",
+  ```json
+  {
+    "strategy": "TIMEOUT_FALLBACK_CACHE",
+    "fallbackUsed": true
+  }
+  ```
+
+  **Observação:** o parâmetro `simulateTimeout=true` simula o comportamento de timeout para fins de demonstração. Ele não representa uma detecção automática de timeout em uma chamada externa real.
+
+  ### 6.1. Conferir os registros gerados
+
+  Para visualizar o conteúdo do arquivo:
+
+  ```powershell
+  Get-Content .\logs\acessos.jsonl
+  ```
+
+  Para contar as linhas registradas:
+
+  ```powershell
+  (Get-Content .\logs\acessos.jsonl).Count
+  ```
+
+  No Linux/macOS, os comandos equivalentes são:
+
+  ```bash
+  cat logs/acessos.jsonl
+  wc -l logs/acessos.jsonl
+  ```
+
+  As chamadas HTTP deste README usam `curl.exe` nos exemplos de PowerShell. No Linux/macOS, utilize `curl` no lugar de `curl.exe`, mantendo a mesma URL, os parâmetros e os cabeçalhos.
+
+  As chamadas são reproduzíveis. Ao executá-las novamente, novas linhas serão acrescentadas ao arquivo, sem sobrescrever o histórico anterior. A quantidade de registros e os resultados do resumo dependem das chamadas efetivamente executadas. Portanto, os números apresentados na seção 8 correspondem à execução controlada registrada no repositório, e não necessariamente à execução isolada das quatro chamadas deste roteiro.
+
+  ## 7. Gerar e visualizar o resumo
+
+  O projeto possui o script `src/resumo.py`, que lê o arquivo JSONL e consolida as informações de acesso.
+
+  Na raiz do projeto, execute:
+
+  ```powershell
+  python -m src.resumo
+  ```
+
+  O resumo apresenta:
+
+  - total de chamadas registradas;
+  - total de erros técnicos (`status == "error"`);
+  - total de consultas sem resultado (`status == "not_found"`);
+  - chamadas agrupadas por função;
+  - produtos mais consultados individualmente;
+  - produtos do catálogo que nunca foram consultados individualmente.
+
+  ### 7.1. Como interpretar a contagem de produtos
+
+  A identificação dos produtos mais consultados individualmente considera exclusivamente os registros da função `get_product_by_id`, utilizando o identificador presente em `parameters.productId`.
+
+  As demais funções podem retornar vários produtos em `recordIds`, como ocorre na recuperação de candidatos, no Cold Start e no fallback. Entretanto, esses retornos não são contabilizados como consultas individuais aos produtos.
+
+  Assim, um produto pode participar de recomendações sem ter sido consultado diretamente pela função `get_product_by_id`.
+
+  Essa distinção evita interpretar a participação de um produto em uma lista de resultados como uma solicitação individual feita por um usuário.
+
+  ## 8. Análise dos resultados — itens A, B e C
+
+  A execução controlada dos testes, registrada em `logs/acessos.jsonl` e analisada em 26/11/2026, apresentou **12 registros de acesso**.
+
+  Os resultados consolidados foram:
+
+  - **Total de registros de acesso:** 12.
+  - **Erros técnicos:** 0.
+  - **Consultas sem resultado:** 1.
+  - **Chamadas de `get_cold_start_products`:** 6.
+  - **Chamadas de `get_product_by_id`:** 3.
+  - **Chamadas de `get_recommendation_candidates`:** 2.
+  - **Chamadas de `get_fallback_products`:** 1.
+  - **Produtos consultados individualmente:** IDs 1 e 11, uma consulta para cada.
+  - **Produtos nunca consultados individualmente:** IDs 2 a 10.
+
+  ### A) Quais dados foram mais utilizados?
+
+  A função mais acionada foi `get_cold_start_products`, com seis chamadas. Em seguida, aparecem `get_product_by_id`, com três chamadas, e `get_recommendation_candidates`, com duas. A função `get_fallback_products` foi acionada uma vez.
+
+  Considerando as consultas individuais, os produtos de IDs 1 e 11 foram consultados uma vez cada pela função `get_product_by_id`.
+
+  Esses resultados indicam que, na execução analisada, houve maior utilização da funcionalidade de Cold Start. É importante destacar que a quantidade de chamadas às funções representa acessos registrados pelo sistema, e não necessariamente visualizações ou cliques realizados por usuários.
+
+  ### B) Existem dados que nunca foram consultados? O que isso pode indicar?
+
+  Sim. Os produtos de IDs 2 a 10 não foram consultados individualmente pela função `get_product_by_id` durante a execução analisada.
+
+  Os produtos de IDs 1 e 11 foram os únicos identificadores presentes nas consultas individuais registradas.
+
+  Isso não significa que os demais produtos não tenham participado das recomendações. Eles podem ter sido retornados pelas funções de recuperação de candidatos, Cold Start ou fallback sem terem sido solicitados individualmente.
+
+  Esse resultado demonstra a importância de distinguir uma consulta direta a um produto da participação desse produto em uma lista de recomendações. Também indica que os dados registrados representam o comportamento do conjunto de testes executado, não necessariamente a preferência real dos usuários da aplicação.
+
+  ### C) Ocorreram erros? O que eles indicam?
+
+  Não foram registrados erros técnicos, pois nenhuma função apresentou o status `error`.
+
+  Entretanto, ocorreu uma consulta sem resultado, registrada com o status `not_found`, referente à busca pelo identificador 999, que não existe no catálogo.
+
+  Esse comportamento demonstra que a função `get_product_by_id` trata a ausência de um produto de maneira controlada, retornando `None` e registrando zero resultados. Assim, uma consulta por identificador inexistente não precisa ser tratada como uma falha técnica do serviço.
+
+  ### 8.1. Validação complementar
+
+  Além dos testes apresentados anteriormente, foram realizadas validações complementares dos requisitos RF-02 e RF-03.
+
+  **RF-02 — Alteração do estoque e atualização do Cold Start**
+
+  O estoque do produto de ID `7` foi temporariamente alterado de `20` para `0` no arquivo `src/catalogo.py`.
+
+  - Antes da alteração, o Cold Start retornava os produtos de IDs `7`, `6`, `2` e `4`.
+  - Após a alteração, o produto de ID `7` deixou de ser recomendado, e os produtos retornados passaram a ser os de IDs `6`, `2`, `4` e `1`.
+  - O produto de ID `1` ocupou a quarta posição, mantendo o limite de quatro recomendações.
+  - Após o teste, o estoque do produto de ID `7` foi restaurado para `20`.
+
+  Os registros do JSONL também demonstraram a alteração no conjunto de produtos elegíveis: antes da mudança, foram registrados 9 produtos; durante o período em que o estoque estava zerado, foram registrados 8, sem a presença do ID `7`.
+
+  **Resultado:** o teste confirmou que o Cold Start consulta os dados atualizados do catálogo e considera a disponibilidade de estoque na seleção das recomendações.
+
+  **RF-03 — Configuração da estratégia**
+
+  Foi realizada uma chamada `PUT` ao endpoint `/api/v1/recommendations/config`, utilizando a estratégia `COLD_START` e a chave administrativa configurada na variável de ambiente `MANOA_ADMIN_API_KEY`.
+
+  **Resposta obtida:**
+
+  ```json
+  {
+    "strategyId": "COLD_START",
+    "status": "ACTIVE",
+    "message": "Estratégia atualizada com sucesso"
+  }
+  ```
+
+  **Resultado:** a chamada foi concluída com sucesso, confirmando a validação da chave administrativa e a atualização da configuração da estratégia para `COLD_START`.
+
+  ## 9. Declaração de uso de IA generativa
+
+  A IA generativa foi utilizada como apoio durante o desenvolvimento e a documentação do trabalho, especialmente para discutir a organização das funções de acesso, o registro dos eventos, a geração do resumo e a revisão do README.
+
+  As sugestões foram analisadas e adaptadas ao código e aos requisitos do projeto. As alterações e os testes foram executados pela equipe, que conferiu as respostas dos endpoints e os registros produzidos.
+
+  A IA foi utilizada como ferramenta de apoio, não como substituta da implementação, validação ou compreensão do funcionamento do sistema.
+
+  ---
+
+
+  # AV1 — Documentação do módulo de recomendação
+
+  Esta seção mantém a documentação funcional da primeira entrega. A AV1 definiu o comportamento esperado do mock de recomendação, incluindo as estratégias de recomendação por produto, Cold Start, configuração da estratégia e tratamento de timeout com fallback. A AV2 acrescenta a camada de acesso rastreável aos dados, sem substituir os comportamentos documentados nesta seção.
+
+  ## Estrutura do projeto na AV1
+
+  Na primeira entrega, a estrutura do projeto era:
+
+  ```text
+  manoa-recomendador/
+  ├── src/
+  │   ├── catalogo.py
+  │   └── service.py
+  ├── requirements.txt
+  ├── README.md
+  └── .gitignore
+  ```
+
+  A pasta `.venv/` é utilizada apenas localmente e está configurada no `.gitignore` para não ser enviada ao GitHub.
+
+  Na AV1:
+
+  - `src/catalogo.py` armazenava o catálogo sintético utilizado pelo mock.
+  - `src/service.py` implementava o serviço BentoML/FastAPI e os endpoints de recomendação.
+
+  Os arquivos `data_access.py`, `resumo.py`, `__init__.py` e a pasta `logs/` foram incorporados posteriormente, na evolução da AV2. A estrutura atual completa está documentada na seção AV2.
+
+  ## Catálogo sintético
+
+  O mock utiliza um catálogo local com **11 produtos fictícios** de artesanato pernambucano na versão atual. A versão inicial da AV1 possuía 10 registros; o catálogo foi ampliado posteriormente.
+
+  Cada produto possui informações como:
+
+  - `productId`
+  - `title`
+  - `category`
+  - `municipality`
+  - `technique`
+  - `price`
+  - `imageUrl`
+  - `seloAutoriaCultural`
+  - `stock`
+
+  Os dados são exclusivamente sintéticos e não representam produtos ou usuários reais. O catálogo permite demonstrar as regras de recomendação sem depender de um banco de dados ou de serviços externos.
+
+  ## Tecnologias utilizadas
+
+  - Python
+  - BentoML
+  - FastAPI
+
+  ## Requisitos funcionais implementados
+
+  O mock implementa os quatro requisitos funcionais definidos para o módulo de recomendação na AV1.
+
+  | Requisito | Método | Endpoint | Estratégia/comportamento |
+  |---|---|---|---|
+  | RF-01 | GET | `/api/v1/recommendations/product/{productId}` | Recomenda produtos similares ao produto informado |
+  | RF-02 | GET | `/api/v1/recommendations/home` | Retorna recomendações para cenário de Cold Start |
+  | RF-03 | PUT | `/api/v1/recommendations/config` | Valida e simula a atualização da estratégia de recomendação |
+  | RF-04 | GET | `/api/v1/recommendations/product/{productId}?simulateTimeout=true` | Simula timeout e utiliza uma lista pré-computada de fallback |
+
+  ## Detalhamento dos endpoints
+
+  ### RF-01 — Recomendação por produto
+
+  **Endpoint:**
+
+  ```http
+  GET /api/v1/recommendations/product/{productId}
+  ```
+
+  O serviço recebe o identificador de um produto e calcula a similaridade dos demais produtos do catálogo. O próprio produto consultado não é incluído nas recomendações.
+
+  A pontuação considera três critérios:
+
+  | Critério | Peso |
+  |---|---:|
+  | Categoria | 0.5 |
+  | Município | 0.3 |
+  | Técnica | 0.2 |
+
+  A pontuação final é calculada a partir da combinação desses critérios. Produtos que compartilham mais características com o produto de origem tendem a receber um score maior.
+
+  A resposta retorna as quatro melhores recomendações ordenadas pelo score.
+
+  **Exemplo de chamada:**
+
+  ```powershell
+  curl.exe "http://localhost:3000/api/v1/recommendations/product/1"
+  ```
+
+  **Exemplo de resposta documentada na AV1:**
+
+  ```json
+  {
+    "productId": 1,
+    "strategy": "SAME_CATEGORY_AND_ORIGIN",
+    "fallbackUsed": false,
+    "recommendations": [
+      {
+        "productId": 3,
+        "title": "Bolsa Artesanal de Palha",
+        "category": "bolsas",
+        "municipality": "Tracunhaém",
+        "price": 109.9,
+        "imageUrl": "https://example.com/bolsa-artesanal.jpg",
+        "score": 1.0
+      },
+      {
+        "productId": 9,
+        "title": "Carteira de Palha",
+        "category": "bolsas",
+        "municipality": "Recife",
+        "price": 69.9,
+        "imageUrl": "https://example.com/carteira-palha.jpg",
+        "score": 0.7
+      }
+    ]
+  }
+  ```
+
+  A resposta completa contém quatro recomendações. O exemplo acima apresenta parte da lista, conforme documentado na primeira versão do README.
+
+  ### RF-02 — Cold Start
+
+  **Endpoint:**
+
+  ```http
+  GET /api/v1/recommendations/home
+  ```
+
+  Este endpoint simula o cenário em que não existe histórico de interação do usuário. Para identificar a sessão anônima, é necessário informar um `anonymousSessionId`.
+
+  O serviço seleciona produtos que atendam aos seguintes critérios:
+
+  - `seloAutoriaCultural = true`;
+  - `stock > 0`.
+
+  Na implementação atual, os produtos elegíveis são ordenados pelo estoque em ordem decrescente e o serviço retorna até quatro recomendações.
+
+  **Exemplo de chamada:**
+
+  ```powershell
+  curl.exe "http://localhost:3000/api/v1/recommendations/home?anonymousSessionId=teste-123"
+  ```
+
+  **Exemplo de resposta documentada:**
+
+  ```json
+  {
+    "anonymousSessionId": "teste-123",
+    "strategy": "COLD_START",
+    "recommendations": [
+      {
+        "productId": 7,
+        "title": "Colar de Miçangas Artesanal",
+        "stock": 20
+      },
+      {
+        "productId": 6,
+        "title": "Boneca de Barro",
+        "stock": 15
+      },
+      {
+        "productId": 2,
+        "title": "Cesto Decorativo de Palha",
+        "stock": 12
+      },
+      {
+        "productId": 4,
+        "title": "Chapéu de Palha Artesanal",
+        "stock": 10
+      }
+    ]
+  }
+  ```
+
+  Os demais atributos dos produtos também são retornados pelo serviço.
+
+  ### RF-03 — Configuração da estratégia
+
+  **Endpoint:**
+
+  ```http
+  PUT /api/v1/recommendations/config
+  ```
+
+  O endpoint recebe um `strategyId` e utiliza uma chave de API administrativa simulada para validar a operação.
+
+  Estratégias aceitas pelo mock:
+
+  - `SAME_CATEGORY_AND_ORIGIN`
+  - `COLD_START`
+
+  Antes da chamada, configure `MANOA_ADMIN_API_KEY` no terminal em que o servidor será iniciado, conforme a seção 1.5. O valor enviado no cabeçalho `X-Api-Key` deve ser igual ao valor dessa variável.
+
+  **Exemplo de chamada — Windows PowerShell:**
+
+  ```powershell
+  curl.exe -X PUT "http://localhost:3000/api/v1/recommendations/config?strategyId=COLD_START" -H "X-Api-Key: manoa-admin-123"
+  ```
+
+  **Exemplo de chamada — Linux/macOS:**
+
+  ```bash
+  curl -X PUT "http://localhost:3000/api/v1/recommendations/config?strategyId=COLD_START" -H "X-Api-Key: manoa-admin-123"
+  ```
+
+  **Resposta esperada:**
+
+  ```json
+  {
+    "strategyId": "COLD_START",
+    "status": "ACTIVE",
+    "message": "Estratégia atualizada com sucesso"
+  }
+  ```
+
+  A configuração é simulada no mock e não utiliza um banco de dados ou serviço externo de configuração.
+
+  ### RF-04 — Timeout e fallback
+
+  **Endpoint:**
+
+  ```http
+  GET /api/v1/recommendations/product/{productId}?simulateTimeout=true
+  ```
+
+  O parâmetro `simulateTimeout=true` permite simular um cenário de timeout para fins de teste.
+
+  Quando esse parâmetro é utilizado, o serviço simula a demora da consulta e retorna uma lista pré-computada de recomendações de fallback. Dessa forma, o mock demonstra uma alternativa de resposta quando a consulta principal não pode ser concluída dentro do fluxo simulado.
+
+  A resposta identifica que o fallback foi utilizado por meio do campo:
+
+  ```json
   "fallbackUsed": true
-}
-```
+  ```
+
+  E utiliza a estratégia:
+
+  ```text
+  TIMEOUT_FALLBACK_CACHE
+  ```
+
+  **Exemplo de chamada:**
+
+  ```powershell
+  curl.exe "http://localhost:3000/api/v1/recommendations/product/1?simulateTimeout=true"
+  ```
+
+  **Exemplo de resposta documentada:**
+
+  ```json
+  {
+    "productId": 1,
+    "strategy": "TIMEOUT_FALLBACK_CACHE",
+    "fallbackUsed": true,
+    "recommendations": [
+      {
+        "productId": 3,
+        "title": "Bolsa Artesanal de Palha",
+        "score": 1.0
+      },
+      {
+        "productId": 9,
+        "title": "Carteira de Palha",
+        "score": 0.7
+      },
+      {
+        "productId": 2,
+        "title": "Cesto Decorativo de Palha",
+        "score": 0.5
+      },
+      {
+        "productId": 4,
+        "title": "Chapéu de Palha Artesanal",
+        "score": 0.5
+      }
+    ]
+  }
+  ```
 
-**Observação:** o parâmetro `simulateTimeout=true` simula o comportamento de timeout para fins de demonstração. Ele não representa uma detecção automática de timeout em uma chamada externa real.
+  ## Casos de teste da AV1
 
-### 6.1. Conferir os registros gerados
+  Os testes abaixo foram documentados para execução com o serviço rodando localmente na porta `3000`.
+
+  ### Caso de teste 1 — RF-01: recomendação por produto
+
+  **Objetivo:** verificar se o serviço retorna recomendações de produtos similares ao produto informado.
+
+  **Comando:**
 
-Para visualizar o conteúdo do arquivo:
+  ```powershell
+  curl.exe "http://localhost:3000/api/v1/recommendations/product/1"
+  ```
 
-```powershell
-Get-Content .\logs\acessos.jsonl
-```
+  **Resultado esperado:**
 
-Para contar as linhas registradas:
+  - Retorno HTTP com as recomendações.
+  - Estratégia `SAME_CATEGORY_AND_ORIGIN`.
+  - `fallbackUsed` igual a `false`.
+  - Quatro produtos recomendados.
+  - Produtos ordenados pelo score de similaridade.
+  - O produto consultado não aparece na lista de recomendações.
 
-```powershell
-(Get-Content .\logs\acessos.jsonl).Count
-```
+  **Resultado obtido documentado:**
 
-No Linux/macOS, os comandos equivalentes são:
+  ```text
+  productId: 1
+  strategy: SAME_CATEGORY_AND_ORIGIN
+  fallbackUsed: false
+  ```
 
-```bash
-cat logs/acessos.jsonl
-wc -l logs/acessos.jsonl
-```
+  Pontuações observadas:
 
-As chamadas HTTP deste README usam `curl.exe` nos exemplos de PowerShell. No Linux/macOS, utilize `curl` no lugar de `curl.exe`, mantendo a mesma URL, os parâmetros e os cabeçalhos.
+  ```text
+  Produto 3 → 1.0
+  Produto 9 → 0.7
+  Produto 2 → 0.5
+  Produto 4 → 0.5
+  ```
 
-As chamadas são reproduzíveis. Ao executá-las novamente, novas linhas serão acrescentadas ao arquivo. Para reproduzir os números da execução controlada documentada na seção 8, utilize um arquivo de log limpo antes de realizar os testes.
+  ### Caso de teste 2 — RF-02: Cold Start
 
-## 7. Gerar e visualizar o resumo
+  **Objetivo:** verificar o comportamento de Cold Start.
 
-O projeto possui o script `src/resumo.py`, que lê o arquivo JSONL e consolida as informações de acesso.
+  **Comando:**
 
-Na raiz do projeto, execute:
+  ```powershell
+  curl.exe "http://localhost:3000/api/v1/recommendations/home?anonymousSessionId=teste-123"
+  ```
 
-```powershell
-python -m src.resumo
-```
+  **Resultado esperado:**
 
-O resumo apresenta:
+  - Estratégia `COLD_START`.
+  - Quatro produtos recomendados.
+  - Todos os produtos com `seloAutoriaCultural = true`.
+  - Todos os produtos com estoque disponível.
+  - Recomendações ordenadas pelo estoque.
 
-- total de chamadas registradas;
-- total de erros técnicos (`status == "error"`);
-- total de consultas sem resultado (`status == "not_found"`);
-- chamadas agrupadas por função;
-- produtos mais consultados individualmente;
-- produtos do catálogo que nunca foram consultados individualmente.
+  **Resultado obtido documentado:**
 
-### 7.1. Como interpretar a contagem de produtos
+  ```text
+  strategy: COLD_START
+  quantidade: 4 produtos
+  ```
 
-A identificação dos produtos mais consultados individualmente considera exclusivamente os registros da função `get_product_by_id`, utilizando o identificador presente em `parameters.productId`.
+  Produtos retornados:
 
-As demais funções podem retornar vários produtos em `recordIds`, como ocorre na recuperação de candidatos, no Cold Start e no fallback. Entretanto, esses retornos não são contabilizados como consultas individuais aos produtos.
+  ```text
+  Produto 7 → estoque 20
+  Produto 6 → estoque 15
+  Produto 2 → estoque 12
+  Produto 4 → estoque 10
+  ```
 
-Assim, um produto pode participar de recomendações sem ter sido consultado diretamente pela função `get_product_by_id`.
+  ### Caso de teste 3 — RF-03: configuração da estratégia
 
-Essa distinção evita interpretar a participação de um produto em uma lista de resultados como uma solicitação individual feita por um usuário.
+  **Objetivo:** verificar a validação da chave administrativa e do identificador de estratégia.
 
-## 8. Análise dos resultados — itens A, B e C
+  **Comando:**
 
-A execução controlada dos testes, realizada em 26/11/2026, gerou **cinco registros** no arquivo `logs/acessos.jsonl`, a partir de quatro requisições HTTP.
+  ```powershell
+  curl.exe -X PUT "http://localhost:3000/api/v1/recommendations/config?strategyId=COLD_START" -H "X-Api-Key: manoa-admin-123"
+  ```
 
-Os resultados consolidados foram:
+  **Resultado esperado:**
 
-- **Total de registros de acesso:** 5.
-- **Erros técnicos:** 0.
-- **Consultas sem resultado:** 1.
-- **Chamadas de `get_product_by_id`:** 2.
-- **Chamadas de `get_recommendation_candidates`:** 1.
-- **Chamadas de `get_cold_start_products`:** 1.
-- **Chamadas de `get_fallback_products`:** 1.
-- **Produto mais consultado individualmente:** produto de ID 1, com uma consulta bem-sucedida.
-- **Produtos nunca consultados individualmente:** IDs 2 a 11.
+  ```json
+  {
+    "strategyId": "COLD_START",
+    "status": "ACTIVE",
+    "message": "Estratégia atualizada com sucesso"
+  }
+  ```
 
-### A) Quais dados foram mais utilizados?
+  **Resultado obtido documentado:**
 
-O produto de ID 1 foi o único produto do catálogo consultado individualmente com sucesso durante a execução controlada.
+  A resposta retornada pelo serviço foi:
 
-A função `get_product_by_id` foi acionada duas vezes: uma para o produto existente de ID 1 e outra para o identificador inexistente 999.
+  ```json
+  {
+    "strategyId": "COLD_START",
+    "status": "ACTIVE",
+    "message": "Estratégia atualizada com sucesso"
+  }
+  ```
 
-As demais funções foram acionadas uma vez cada. A função de candidatos retornou dez produtos, a função de Cold Start retornou nove produtos elegíveis e a função de fallback recuperou quatro produtos.
+  ### Caso de teste 4 — RF-04: timeout e fallback
 
-Esses números representam chamadas às funções e consultas individuais, não visualizações ou cliques de usuários.
+  **Objetivo:** verificar o comportamento de fallback em uma situação de timeout simulada.
 
-### B) Existem dados que nunca foram consultados? O que isso pode indicar?
+  **Comando:**
 
-Sim. Os produtos de IDs 2 a 11 não foram consultados individualmente pela função `get_product_by_id` durante a execução controlada.
+  ```powershell
+  curl.exe "http://localhost:3000/api/v1/recommendations/product/1?simulateTimeout=true"
+  ```
 
-Isso indica que o conjunto de testes utilizou apenas o produto de ID 1 como produto de origem para a recomendação. Os outros produtos participaram dos resultados de candidatos, Cold Start ou fallback, mas isso não significa que tenham sido pesquisados individualmente.
+  **Resultado esperado:**
 
-A distinção é importante porque a presença de um produto em uma lista de recomendações não comprova que ele foi solicitado diretamente por um usuário.
+  - Estratégia `TIMEOUT_FALLBACK_CACHE`.
+  - `fallbackUsed` igual a `true`.
+  - Retorno da lista pré-computada de fallback.
 
-### C) Ocorreram erros? O que eles indicam?
+  **Resultado obtido documentado:**
 
-Não foram registrados erros técnicos, pois nenhuma função apresentou o status `error`.
+  ```text
+  productId: 1
+  strategy: TIMEOUT_FALLBACK_CACHE
+  fallbackUsed: true
+  ```
 
-Entretanto, ocorreu uma consulta sem resultado: a busca pelo identificador 999, que não existe no catálogo, foi registrada com o status `not_found`.
+  A lista de fallback foi retornada corretamente.
 
-Esse comportamento demonstra que a função `get_product_by_id` trata a ausência de um produto de maneira controlada, retornando `None` e registrando zero resultados. Assim, uma consulta por identificador inexistente não precisa ser tratada como uma falha técnica do serviço.
+  ## Resumo dos testes da AV1
 
-### 8.1. Validação complementar — 26/11/2026
+  | Caso | Requisito | Resultado documentado |
+  |---|---|---|
+  | 1 | RF-01 | Aprovado |
+  | 2 | RF-02 | Aprovado |
+  | 3 | RF-03 | Aprovado |
+  | 4 | RF-04 | Aprovado |
 
-Após a execução controlada inicial, foram realizados testes complementares dos requisitos funcionais RF02 e RF03 e do comportamento de recomendação para um produto sem atributos correspondentes.
+  ## Observações sobre o mock
 
-O arquivo `logs/acessos.jsonl` passou a conter 12 registros de acesso. O resumo atualizado apresentou:
+  Este projeto tem como objetivo representar o contrato de entrada e saída do módulo de recomendação definido na AV1.
 
-- **Total de chamadas:** 12.
-- **Erros técnicos:** 0.
-- **Consultas sem resultado:** 1.
-- **Chamadas de `get_cold_start_products`:** 6.
-- **Chamadas de `get_fallback_products`:** 1.
-- **Chamadas de `get_product_by_id`:** 3.
-- **Chamadas de `get_recommendation_candidates`:** 2.
-- **Produtos mais consultados individualmente:** IDs 1 e 11, com uma consulta cada.
-- **Produtos nunca consultados individualmente:** IDs 2 a 10.
+  Por se tratar de um mock:
 
-#### Teste RF02 — Atualização do Cold Start
+  - o catálogo utilizado é sintético;
+  - não existe banco de dados real;
+  - não são utilizados dados reais de usuários;
+  - as funções internas podem ser simplificadas ou simuladas;
+  - o fallback utiliza uma lista pré-computada local;
+  - a atualização de configuração é simulada;
+  - o parâmetro `simulateTimeout` existe exclusivamente para possibilitar a demonstração e o teste do comportamento de fallback.
 
-Foi realizada uma alteração temporária no estoque do produto de ID 7, reduzindo seu valor de 20 para 0.
+  O foco da AV1 é demonstrar que o módulo pode ser executado localmente e que suas interfaces respondem conforme os requisitos funcionais especificados.
 
-Antes da alteração, o produto aparecia na primeira posição das recomendações. Após a alteração, ele deixou de ser recomendado e os produtos de IDs
+  ## Execução rápida da AV1
 
-## 9. Declaração de uso de IA generativa
+  Depois de clonar o projeto, os comandos básicos para preparar e executar o serviço são:
 
-A IA generativa foi utilizada como apoio durante o desenvolvimento e a documentação do trabalho, especialmente para discutir a organização das funções de acesso, o registro dos eventos, a geração do resumo e a revisão do README.
+  ```powershell
+  python -m venv .venv
+  .\.venv\Scripts\Activate.ps1
+  pip install -r requirements.txt
+  bentoml serve src/service.py
+  ```
 
-As sugestões foram analisadas e adaptadas ao código e aos requisitos do projeto. As alterações e os testes foram executados pela equipe, que conferiu as respostas dos endpoints e os registros produzidos.
+  Em outro terminal, com o serviço em execução:
 
-A IA foi utilizada como ferramenta de apoio, não como substituta da implementação, validação ou compreensão do funcionamento do sistema.
+  ```powershell
+  curl.exe "http://localhost:3000/api/v1/recommendations/product/1"
+  ```
 
----
-
----
-
-# AV1 — Documentação do módulo de recomendação
-
-Esta seção mantém a documentação funcional da primeira entrega. A AV1 definiu o comportamento esperado do mock de recomendação, incluindo as estratégias de recomendação por produto, Cold Start, configuração da estratégia e tratamento de timeout com fallback. A AV2 acrescenta a camada de acesso rastreável aos dados, sem substituir os comportamentos documentados nesta seção.
-
-## Estrutura do projeto na AV1
-
-Na primeira entrega, a estrutura do projeto era:
-
-```text
-manoa-recomendador/
-├── src/
-│   ├── catalogo.py
-│   └── service.py
-├── requirements.txt
-├── README.md
-└── .gitignore
-```
-
-A pasta `.venv/` é utilizada apenas localmente e está configurada no `.gitignore` para não ser enviada ao GitHub.
-
-Na AV1:
-
-- `src/catalogo.py` armazenava o catálogo sintético utilizado pelo mock.
-- `src/service.py` implementava o serviço BentoML/FastAPI e os endpoints de recomendação.
-
-Os arquivos `data_access.py`, `resumo.py`, `__init__.py` e a pasta `logs/` foram incorporados posteriormente, na evolução da AV2. A estrutura atual completa está documentada na seção AV2.
-
-## Catálogo sintético
-
-O mock utiliza um catálogo local com **11 produtos fictícios** de artesanato pernambucano na versão atual. A versão inicial da AV1 possuía 10 registros; o catálogo foi ampliado posteriormente.
-
-Cada produto possui informações como:
-
-- `productId`
-- `title`
-- `category`
-- `municipality`
-- `technique`
-- `price`
-- `imageUrl`
-- `seloAutoriaCultural`
-- `stock`
-
-Os dados são exclusivamente sintéticos e não representam produtos ou usuários reais. O catálogo permite demonstrar as regras de recomendação sem depender de um banco de dados ou de serviços externos.
-
-## Tecnologias utilizadas
-
-- Python
-- BentoML
-- FastAPI
-
-## Requisitos funcionais implementados
-
-O mock implementa os quatro requisitos funcionais definidos para o módulo de recomendação na AV1.
-
-| Requisito | Método | Endpoint | Estratégia/comportamento |
-|---|---|---|---|
-| RF-01 | GET | `/api/v1/recommendations/product/{productId}` | Recomenda produtos similares ao produto informado |
-| RF-02 | GET | `/api/v1/recommendations/home` | Retorna recomendações para cenário de Cold Start |
-| RF-03 | PUT | `/api/v1/recommendations/config` | Valida e simula a atualização da estratégia de recomendação |
-| RF-04 | GET | `/api/v1/recommendations/product/{productId}?simulateTimeout=true` | Simula timeout e utiliza uma lista pré-computada de fallback |
-
-## Detalhamento dos endpoints
-
-### RF-01 — Recomendação por produto
-
-**Endpoint:**
-
-```http
-GET /api/v1/recommendations/product/{productId}
-```
-
-O serviço recebe o identificador de um produto e calcula a similaridade dos demais produtos do catálogo. O próprio produto consultado não é incluído nas recomendações.
-
-A pontuação considera três critérios:
-
-| Critério | Peso |
-|---|---:|
-| Categoria | 0.5 |
-| Município | 0.3 |
-| Técnica | 0.2 |
-
-A pontuação final é calculada a partir da combinação desses critérios. Produtos que compartilham mais características com o produto de origem tendem a receber um score maior.
-
-A resposta retorna as quatro melhores recomendações ordenadas pelo score.
-
-**Exemplo de chamada:**
-
-```powershell
-curl.exe "http://localhost:3000/api/v1/recommendations/product/1"
-```
-
-**Exemplo de resposta documentada na AV1:**
-
-```json
-{
-  "productId": 1,
-  "strategy": "SAME_CATEGORY_AND_ORIGIN",
-  "fallbackUsed": false,
-  "recommendations": [
-    {
-      "productId": 3,
-      "title": "Bolsa Artesanal de Palha",
-      "category": "bolsas",
-      "municipality": "Tracunhaém",
-      "price": 109.9,
-      "imageUrl": "https://example.com/bolsa-artesanal.jpg",
-      "score": 1.0
-    },
-    {
-      "productId": 9,
-      "title": "Carteira de Palha",
-      "category": "bolsas",
-      "municipality": "Recife",
-      "price": 69.9,
-      "imageUrl": "https://example.com/carteira-palha.jpg",
-      "score": 0.7
-    }
-  ]
-}
-```
-
-A resposta completa contém quatro recomendações. O exemplo acima apresenta parte da lista, conforme documentado na primeira versão do README.
-
-### RF-02 — Cold Start
-
-**Endpoint:**
-
-```http
-GET /api/v1/recommendations/home
-```
-
-Este endpoint simula o cenário em que não existe histórico de interação do usuário. Para identificar a sessão anônima, é necessário informar um `anonymousSessionId`.
-
-O serviço seleciona produtos que atendam aos seguintes critérios:
-
-- `seloAutoriaCultural = true`;
-- `stock > 0`.
-
-Na implementação atual, os produtos elegíveis são ordenados pelo estoque em ordem decrescente e o serviço retorna até quatro recomendações.
-
-**Exemplo de chamada:**
-
-```powershell
-curl.exe "http://localhost:3000/api/v1/recommendations/home?anonymousSessionId=teste-123"
-```
-
-**Exemplo de resposta documentada:**
-
-```json
-{
-  "anonymousSessionId": "teste-123",
-  "strategy": "COLD_START",
-  "recommendations": [
-    {
-      "productId": 7,
-      "title": "Colar de Miçangas Artesanal",
-      "stock": 20
-    },
-    {
-      "productId": 6,
-      "title": "Boneca de Barro",
-      "stock": 15
-    },
-    {
-      "productId": 2,
-      "title": "Cesto Decorativo de Palha",
-      "stock": 12
-    },
-    {
-      "productId": 4,
-      "title": "Chapéu de Palha Artesanal",
-      "stock": 10
-    }
-  ]
-}
-```
-
-Os demais atributos dos produtos também são retornados pelo serviço.
-
-### RF-03 — Configuração da estratégia
-
-**Endpoint:**
-
-```http
-PUT /api/v1/recommendations/config
-```
-
-O endpoint recebe um `strategyId` e utiliza uma chave de API administrativa simulada para validar a operação.
-
-Estratégias aceitas pelo mock:
-
-- `SAME_CATEGORY_AND_ORIGIN`
-- `COLD_START`
-
-Antes da chamada, configure `MANOA_ADMIN_API_KEY` no terminal em que o servidor será iniciado, conforme a seção 1.5. O valor enviado no cabeçalho `X-Api-Key` deve ser igual ao valor dessa variável.
-
-**Exemplo de chamada — Windows PowerShell:**
-
-```powershell
-curl.exe -X PUT "http://localhost:3000/api/v1/recommendations/config?strategyId=COLD_START" -H "X-Api-Key: manoa-admin-123"
-```
-
-**Exemplo de chamada — Linux/macOS:**
-
-```bash
-curl -X PUT "http://localhost:3000/api/v1/recommendations/config?strategyId=COLD_START" -H "X-Api-Key: manoa-admin-123"
-```
-
-**Resposta esperada:**
-
-```json
-{
-  "strategyId": "COLD_START",
-  "status": "ACTIVE",
-  "message": "Estratégia atualizada com sucesso"
-}
-```
-
-A configuração é simulada no mock e não utiliza um banco de dados ou serviço externo de configuração.
-
-### RF-04 — Timeout e fallback
-
-**Endpoint:**
-
-```http
-GET /api/v1/recommendations/product/{productId}?simulateTimeout=true
-```
-
-O parâmetro `simulateTimeout=true` permite simular um cenário de timeout para fins de teste.
-
-Quando esse parâmetro é utilizado, o serviço simula a demora da consulta e retorna uma lista pré-computada de recomendações de fallback. Dessa forma, o mock demonstra uma alternativa de resposta quando a consulta principal não pode ser concluída dentro do fluxo simulado.
-
-A resposta identifica que o fallback foi utilizado por meio do campo:
-
-```json
-"fallbackUsed": true
-```
-
-E utiliza a estratégia:
-
-```text
-TIMEOUT_FALLBACK_CACHE
-```
-
-**Exemplo de chamada:**
-
-```powershell
-curl.exe "http://localhost:3000/api/v1/recommendations/product/1?simulateTimeout=true"
-```
-
-**Exemplo de resposta documentada:**
-
-```json
-{
-  "productId": 1,
-  "strategy": "TIMEOUT_FALLBACK_CACHE",
-  "fallbackUsed": true,
-  "recommendations": [
-    {
-      "productId": 3,
-      "title": "Bolsa Artesanal de Palha",
-      "score": 1.0
-    },
-    {
-      "productId": 9,
-      "title": "Carteira de Palha",
-      "score": 0.7
-    },
-    {
-      "productId": 2,
-      "title": "Cesto Decorativo de Palha",
-      "score": 0.5
-    },
-    {
-      "productId": 4,
-      "title": "Chapéu de Palha Artesanal",
-      "score": 0.5
-    }
-  ]
-}
-```
-
-## Casos de teste da AV1
-
-Os testes abaixo foram documentados para execução com o serviço rodando localmente na porta `3000`.
-
-### Caso de teste 1 — RF-01: recomendação por produto
-
-**Objetivo:** verificar se o serviço retorna recomendações de produtos similares ao produto informado.
-
-**Comando:**
-
-```powershell
-curl.exe "http://localhost:3000/api/v1/recommendations/product/1"
-```
-
-**Resultado esperado:**
-
-- Retorno HTTP com as recomendações.
-- Estratégia `SAME_CATEGORY_AND_ORIGIN`.
-- `fallbackUsed` igual a `false`.
-- Quatro produtos recomendados.
-- Produtos ordenados pelo score de similaridade.
-- O produto consultado não aparece na lista de recomendações.
-
-**Resultado obtido documentado:**
-
-```text
-productId: 1
-strategy: SAME_CATEGORY_AND_ORIGIN
-fallbackUsed: false
-```
-
-Pontuações observadas:
-
-```text
-Produto 3 → 1.0
-Produto 9 → 0.7
-Produto 2 → 0.5
-Produto 4 → 0.5
-```
-
-### Caso de teste 2 — RF-02: Cold Start
-
-**Objetivo:** verificar o comportamento de Cold Start.
-
-**Comando:**
-
-```powershell
-curl.exe "http://localhost:3000/api/v1/recommendations/home?anonymousSessionId=teste-123"
-```
-
-**Resultado esperado:**
-
-- Estratégia `COLD_START`.
-- Quatro produtos recomendados.
-- Todos os produtos com `seloAutoriaCultural = true`.
-- Todos os produtos com estoque disponível.
-- Recomendações ordenadas pelo estoque.
-
-**Resultado obtido documentado:**
-
-```text
-strategy: COLD_START
-quantidade: 4 produtos
-```
-
-Produtos retornados:
-
-```text
-Produto 7 → estoque 20
-Produto 6 → estoque 15
-Produto 2 → estoque 12
-Produto 4 → estoque 10
-```
-
-### Caso de teste 3 — RF-03: configuração da estratégia
-
-**Objetivo:** verificar a validação da chave administrativa e do identificador de estratégia.
-
-**Comando:**
-
-```powershell
-curl.exe -X PUT "http://localhost:3000/api/v1/recommendations/config?strategyId=COLD_START" -H "X-Api-Key: manoa-admin-123"
-```
-
-**Resultado esperado:**
-
-```json
-{
-  "strategyId": "COLD_START",
-  "status": "ACTIVE",
-  "message": "Estratégia atualizada com sucesso"
-}
-```
-
-**Resultado obtido documentado:**
-
-A resposta retornada pelo serviço foi:
-
-```json
-{
-  "strategyId": "COLD_START",
-  "status": "ACTIVE",
-  "message": "Estratégia atualizada com sucesso"
-}
-```
-
-### Caso de teste 4 — RF-04: timeout e fallback
-
-**Objetivo:** verificar o comportamento de fallback em uma situação de timeout simulada.
-
-**Comando:**
-
-```powershell
-curl.exe "http://localhost:3000/api/v1/recommendations/product/1?simulateTimeout=true"
-```
-
-**Resultado esperado:**
-
-- Estratégia `TIMEOUT_FALLBACK_CACHE`.
-- `fallbackUsed` igual a `true`.
-- Retorno da lista pré-computada de fallback.
-
-**Resultado obtido documentado:**
-
-```text
-productId: 1
-strategy: TIMEOUT_FALLBACK_CACHE
-fallbackUsed: true
-```
-
-A lista de fallback foi retornada corretamente.
-
-## Resumo dos testes da AV1
-
-| Caso | Requisito | Resultado documentado |
-|---|---|---|
-| 1 | RF-01 | Aprovado |
-| 2 | RF-02 | Aprovado |
-| 3 | RF-03 | Aprovado |
-| 4 | RF-04 | Aprovado |
-
-## Observações sobre o mock
-
-Este projeto tem como objetivo representar o contrato de entrada e saída do módulo de recomendação definido na AV1.
-
-Por se tratar de um mock:
-
-- o catálogo utilizado é sintético;
-- não existe banco de dados real;
-- não são utilizados dados reais de usuários;
-- as funções internas podem ser simplificadas ou simuladas;
-- o fallback utiliza uma lista pré-computada local;
-- a atualização de configuração é simulada;
-- o parâmetro `simulateTimeout` existe exclusivamente para possibilitar a demonstração e o teste do comportamento de fallback.
-
-O foco da AV1 é demonstrar que o módulo pode ser executado localmente e que suas interfaces respondem conforme os requisitos funcionais especificados.
-
-## Execução rápida da AV1
-
-Depois de clonar o projeto, os comandos básicos para preparar e executar o serviço são:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-bentoml serve src/service.py
-```
-
-Em outro terminal, com o serviço em execução:
-
-```powershell
-curl.exe "http://localhost:3000/api/v1/recommendations/product/1"
-```
-
-Se uma resposta JSON for retornada, o mock está respondendo à chamada.
+  Se uma resposta JSON for retornada, o mock está respondendo à chamada.
 
