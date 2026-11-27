@@ -110,16 +110,16 @@
   Windows PowerShell:
 
   ```powershell
-  $env:MANOA_ADMIN_API_KEY = "manoa-admin-123"
+  $env:MANOA_ADMIN_API_KEY = "SUA_CHAVE_ADMINISTRATIVA"
   ```
 
   Linux/macOS:
 
   ```bash
-  export MANOA_ADMIN_API_KEY="manoa-admin-123"
+  export MANOA_ADMIN_API_KEY="SUA_CHAVE_ADMINISTRATIVA"
   ```
 
-  A chave acima é fictícia e utilizada somente para este mock.
+Defina qualquer valor para a chave administrativa no arquivo .env ou na variável de ambiente. Esse valor será utilizado na validação do endpoint de configuração.
 
   ### 1.6. Iniciar o serviço
 
@@ -212,10 +212,10 @@
 
   O projeto possui casos que permitem verificar o comportamento das funções de acesso e das regras de negócio:
 
-  - **Produto ID 999:** identificador inexistente no catálogo. A busca deve retornar ausência de resultado, sem interromper o serviço, e registrar o status `not_found`.
+  - **Produto ID 999:** identificador inexistente no catálogo. A busca deve retornar ausência de resultado, sem interromper o serviço, e registrar o status `not_found`. Ao consultar o endpoint de recomendações com o ID 999, o serviço retorna HTTP 404, com a mensagem {"detail":"Produto não encontrado"}, e registra a consulta como not_found no log.
   - **Produto ID 10:** não possui selo de autoria cultural (`seloAutoriaCultural == false`), portanto não deve ser selecionado no Cold Start.
   - **Produto ID 11:** possui estoque igual a zero (`stock == 0`), portanto também não deve ser selecionado no Cold Start.
-    Além disso, sua categoria (`miniaturas`), município (`Petrolina`) e técnica (`marchetaria`) não coincidem com os atributos dos demais produtos do catálogo. Ao consultar `/api/v1/recommendations/product/11`, os candidatos recebem `score` igual a `0.0`; como o endpoint retorna os quatro primeiros, a resposta apresenta quatro recomendações empatadas com score zero.
+   Além disso, sua categoria (`miniaturas`), município (`Petrolina`) e técnica (`marchetaria`) não coincidem com os atributos dos demais produtos do catálogo. Ao consultar `/api/v1/recommendations/product/11`, os candidatos recebem `score` igual a `0.0`. Como a implementação retorna somente recomendações com pontuação maior que zero, a resposta apresenta uma lista vazia e uma mensagem informando que não foram encontradas recomendações com atributos em comum.
 
   Esses casos permitem verificar tanto o tratamento de identificadores inexistentes quanto a aplicação dos critérios de elegibilidade.
 
@@ -285,7 +285,7 @@
   | Função | Parâmetros | Responsabilidade |
   |---|---|---|
   | `get_product_by_id(product_id, caller)` | ID do produto e rota chamadora | Busca um produto específico pelo identificador |
-  | `get_recommendation_candidates(product_id, caller)` | ID do produto e rota chamadora | Recupera produtos candidatos, excluindo o próprio produto consultado |
+  | `get_recommendation_candidates(product_id, caller)` | ID do produto e rota chamadora | Valida a existência do produto de origem e recupera os demais produtos do catálogo. Se o produto não existir, retorna uma lista vazia e registra o status `not_found` |
   | `get_cold_start_products(caller)` | Rota chamadora | Recupera produtos com selo de autoria cultural e estoque disponível |
   | `get_fallback_products(product_ids, caller)` | Lista de IDs e rota chamadora | Recupera os produtos utilizados na estratégia de fallback |
 
@@ -301,6 +301,8 @@
   - A função de fallback recupera os produtos definidos para a estratégia alternativa.
 
   Todas as funções registram seus acessos por meio de `registrar_acesso()`, também definida em `src/data_access.py`.
+
+  A função `get_recommendation_candidates` também valida a existência do produto de origem. Caso o identificador não seja encontrado, registra `not_found`, retorna uma lista vazia e não contabiliza produtos retornados.
 
   ## 5. Registro dos acessos
 
@@ -449,68 +451,145 @@
   python -m src.resumo
   ```
 
+
   O resumo apresenta:
 
-  - total de chamadas registradas;
-  - total de erros técnicos (`status == "error"`);
-  - total de consultas sem resultado (`status == "not_found"`);
-  - chamadas agrupadas por função;
-  - produtos mais consultados individualmente;
-  - produtos do catálogo que nunca foram consultados individualmente.
+- total de chamadas registradas;
+- total de erros técnicos (`status == "error"`);
+- total de consultas sem resultado (`status == "not_found"`);
+- chamadas agrupadas por função;
+- produtos consultados individualmente pela função `get_product_by_id`;
+- produtos que nunca foram consultados individualmente;
+- quantidade de vezes que cada produto apareceu em `recordIds`;
+- produtos que nunca apareceram nos resultados registrados.
 
-  ### 7.1. Como interpretar a contagem de produtos
 
-  A identificação dos produtos mais consultados individualmente considera exclusivamente os registros da função `get_product_by_id`, utilizando o identificador presente em `parameters.productId`.
+  ## 7.1. Como interpretar a contagem de produtos
 
-  As demais funções podem retornar vários produtos em `recordIds`, como ocorre na recuperação de candidatos, no Cold Start e no fallback. Entretanto, esses retornos não são contabilizados como consultas individuais aos produtos.
+  O resumo apresenta duas métricas diferentes para analisar a utilização dos produtos.
 
-  Assim, um produto pode participar de recomendações sem ter sido consultado diretamente pela função `get_product_by_id`.
+  **Consultas individuais:** considera exclusivamente os registros da função `get_product_by_id`, utilizando o identificador presente em `parameters.productId`. Essa métrica indica quantas vezes um produto foi solicitado diretamente pela função de busca individual.
 
-  Essa distinção evita interpretar a participação de um produto em uma lista de resultados como uma solicitação individual feita por um usuário.
+  **Produtos retornados:** considera os identificadores presentes no campo `recordIds` de todas as funções de acesso. Essa métrica contabiliza quantas vezes cada produto apareceu nos resultados recuperados pelas funções de candidatos, Cold Start, busca individual e fallback.
 
-  ## 8. Análise dos resultados — itens A, B e C
+  Um produto pode aparecer várias vezes em `recordIds` sem ter sido consultado individualmente.
 
-  A execução controlada dos testes, registrada em `logs/acessos.jsonl` e analisada em 26/11/2026, apresentou **12 registros de acesso**.
+  Essas métricas representam acessos e resultados registrados pelo sistema. Não representam necessariamente visualizações, cliques ou compras realizadas por usuários.
 
-  Os resultados consolidados foram:
 
-  - **Total de registros de acesso:** 12.
-  - **Erros técnicos:** 0.
-  - **Consultas sem resultado:** 1.
-  - **Chamadas de `get_cold_start_products`:** 6.
-  - **Chamadas de `get_product_by_id`:** 3.
-  - **Chamadas de `get_recommendation_candidates`:** 2.
-  - **Chamadas de `get_fallback_products`:** 1.
-  - **Produtos consultados individualmente:** IDs 1 e 11, uma consulta para cada.
-  - **Produtos nunca consultados individualmente:** IDs 2 a 10.
+## 8. Análise dos resultados — itens A, B e C
 
-  ### A) Quais dados foram mais utilizados?
+### 8.1. Execução controlada — 26/11/2026
 
-  A função mais acionada foi `get_cold_start_products`, com seis chamadas. Em seguida, aparecem `get_product_by_id`, com três chamadas, e `get_recommendation_candidates`, com duas. A função `get_fallback_products` foi acionada uma vez.
+A execução controlada dos testes, registrada em `logs/acessos.jsonl` e analisada em 26/11/2026, apresentou **12 registros de acesso**.
 
-  Considerando as consultas individuais, os produtos de IDs 1 e 11 foram consultados uma vez cada pela função `get_product_by_id`.
+Os resultados consolidados foram:
 
-  Esses resultados indicam que, na execução analisada, houve maior utilização da funcionalidade de Cold Start. É importante destacar que a quantidade de chamadas às funções representa acessos registrados pelo sistema, e não necessariamente visualizações ou cliques realizados por usuários.
+- **Total de registros de acesso:** 12.
+- **Erros técnicos:** 0.
+- **Consultas sem resultado:** 1.
+- **Chamadas de `get_cold_start_products`:** 6.
+- **Chamadas de `get_product_by_id`:** 3.
+- **Chamadas de `get_recommendation_candidates`:** 2.
+- **Chamadas de `get_fallback_products`:** 1.
+- **Produtos consultados individualmente:** IDs 1 e 11, uma consulta para cada.
+- **Produtos nunca consultados individualmente:** IDs 2 a 10.
 
-  ### B) Existem dados que nunca foram consultados? O que isso pode indicar?
+#### A) Quais dados foram mais utilizados?
 
-  Sim. Os produtos de IDs 2 a 10 não foram consultados individualmente pela função `get_product_by_id` durante a execução analisada.
+A função mais acionada foi `get_cold_start_products`, com seis chamadas. Em seguida, aparecem `get_product_by_id`, com três chamadas, e `get_recommendation_candidates`, com duas. A função `get_fallback_products` foi acionada uma vez.
 
-  Os produtos de IDs 1 e 11 foram os únicos identificadores presentes nas consultas individuais registradas.
+Considerando as consultas individuais, os produtos de IDs 1 e 11 foram consultados uma vez cada pela função `get_product_by_id`.
 
-  Isso não significa que os demais produtos não tenham participado das recomendações. Eles podem ter sido retornados pelas funções de recuperação de candidatos, Cold Start ou fallback sem terem sido solicitados individualmente.
+Esses resultados indicam que, na execução analisada, houve maior utilização da funcionalidade de Cold Start. É importante destacar que a quantidade de chamadas às funções representa acessos registrados pelo sistema, e não necessariamente visualizações ou cliques realizados por usuários.
 
-  Esse resultado demonstra a importância de distinguir uma consulta direta a um produto da participação desse produto em uma lista de recomendações. Também indica que os dados registrados representam o comportamento do conjunto de testes executado, não necessariamente a preferência real dos usuários da aplicação.
+Considerando também os produtos retornados pelas funções de acesso, os IDs 2, 3, 4 e 9 foram os mais frequentes, com nove retornos cada.
 
-  ### C) Ocorreram erros? O que eles indicam?
+Em seguida, aparecem os produtos de IDs 1, 5, 6 e 8, com oito retornos cada; o produto 7, com sete retornos; e os produtos 10 e 11, com dois retornos cada.
 
-  Não foram registrados erros técnicos, pois nenhuma função apresentou o status `error`.
+Todos os 11 produtos do catálogo apareceram pelo menos uma vez em `recordIds`.
 
-  Entretanto, ocorreu uma consulta sem resultado, registrada com o status `not_found`, referente à busca pelo identificador 999, que não existe no catálogo.
+#### B) Existem dados que nunca foram consultados? O que isso pode indicar?
 
-  Esse comportamento demonstra que a função `get_product_by_id` trata a ausência de um produto de maneira controlada, retornando `None` e registrando zero resultados. Assim, uma consulta por identificador inexistente não precisa ser tratada como uma falha técnica do serviço.
+Sim. Os produtos de IDs 2 a 10 não foram consultados individualmente pela função `get_product_by_id` durante a execução analisada.
 
-  ### 8.1. Validação complementar
+Os produtos de IDs 1 e 11 foram os únicos identificadores presentes nas consultas individuais registradas.
+
+Isso não significa que os demais produtos não tenham participado das recomendações. Eles podem ter sido retornados pelas funções de recuperação de candidatos, Cold Start ou fallback sem terem sido solicitados individualmente.
+
+Esse resultado demonstra a importância de distinguir uma consulta direta a um produto da participação desse produto em uma lista de recomendações. Também indica que os dados registrados representam o comportamento do conjunto de testes executado, não necessariamente a preferência real dos usuários da aplicação.
+
+Embora os produtos de IDs 2 a 10 não tenham sido consultados individualmente, todos os produtos do catálogo apareceram pelo menos uma vez nos resultados registrados em `recordIds`.
+
+Isso demonstra que a ausência de uma consulta individual não significa ausência de participação nas operações de recuperação de dados.
+
+#### C) Ocorreram erros? O que eles indicam?
+
+Não foram registrados erros técnicos, pois nenhuma função apresentou o status `error`.
+
+Entretanto, ocorreu uma consulta sem resultado, registrada com o status `not_found`, referente à busca pelo identificador 999, que não existe no catálogo.
+
+Esse comportamento demonstra que a função `get_product_by_id` trata a ausência de um produto de maneira controlada, retornando `None` e registrando zero resultados. Assim, uma consulta por identificador inexistente não precisa ser tratada como uma falha técnica do serviço.
+
+### 8.2. Atualização dos resultados após as alterações — 27/11/2026
+
+Após as alterações realizadas nas funções de acesso, no serviço de recomendações e no módulo de resumo, foram executados novos testes para verificar o comportamento atualizado da aplicação.
+
+A análise acumulada do arquivo `logs/acessos.jsonl`, realizada por meio do comando `python -m src.resumo`, apresentou **39 registros de acesso**.
+
+Os resultados atualizados foram:
+
+- **Total de registros de acesso:** 39.
+- **Erros técnicos:** 0.
+- **Consultas sem resultado:** 7.
+- **Chamadas de `get_cold_start_products`:** 8.
+- **Chamadas de `get_product_by_id`:** 16.
+- **Chamadas de `get_recommendation_candidates`:** 12.
+- **Chamadas de `get_fallback_products`:** 3.
+- **Produtos consultados individualmente:** produto de ID 1, com cinco consultas, e produto de ID 11, com cinco consultas.
+- **Produtos nunca consultados individualmente:** IDs 2 a 10.
+
+#### A) Quais dados foram mais utilizados?
+
+Na análise acumulada, a função mais acionada foi `get_product_by_id`, com 16 chamadas. Em seguida, aparece `get_recommendation_candidates`, com 12 chamadas. A função `get_cold_start_products` apresentou oito chamadas, enquanto `get_fallback_products` foi acionada três vezes.
+
+Considerando os produtos retornados pelas funções de acesso, os IDs 2, 3, 4 e 9 foram os mais frequentes, com 22 retornos cada.
+
+Os produtos de IDs 5, 6 e 8 tiveram 19 retornos cada; o produto de ID 1 teve 18 retornos; o produto de ID 7 também teve 18 retornos; e os produtos de IDs 10 e 11 tiveram 11 retornos cada.
+
+Todos os 11 produtos do catálogo apareceram nos resultados registrados em `recordIds`.
+
+Esses resultados representam os acessos realizados pelas funções durante os testes, não necessariamente visualizações, cliques ou compras de usuários.
+
+#### B) Existem dados que nunca foram consultados? O que isso pode indicar?
+
+Os produtos de IDs 2 a 10 não foram consultados individualmente pela função `get_product_by_id`.
+
+Já os produtos de IDs 1 e 11 foram consultados individualmente cinco vezes cada.
+
+Entretanto, todos os produtos apareceram pelo menos uma vez em `recordIds`, pois também podem ser recuperados pelas funções de candidatos, Cold Start e fallback.
+
+Existem diferenças importantes entre os produtos:
+
+- **Produto 10:** não possui selo de autoria cultural (`seloAutoriaCultural == false`), portanto não participa da seleção do Cold Start. Ainda pode aparecer como candidato na busca por produtos semelhantes.
+- **Produto 11:** possui estoque igual a zero (`stock == 0`), por isso não participa do Cold Start. Além disso, não possui características em comum com os demais produtos, resultando em score de similaridade igual a zero. Assim, não aparece como recomendação final na rota por produto.
+- **Produtos 10 e 11:** não fazem parte da lista de produtos definida para o fallback.
+
+Esse resultado demonstra a importância de distinguir produtos consultados individualmente daqueles que aparecem como resultados de outras funções de acesso. Também indica que a ausência de uma consulta individual não significa que o produto não tenha participado das operações do módulo.
+
+#### C) Ocorreram erros? O que eles indicam?
+
+Não foram registrados erros técnicos nas 39 chamadas analisadas, pois nenhuma função apresentou o status `error`.
+
+Entretanto, foram registradas sete consultas sem resultado, contabilizadas pelo status `not_found`.
+
+Essas ocorrências representam buscas em que o registro solicitado não foi encontrado. Um exemplo é a consulta pelo identificador 999, inexistente no catálogo, utilizada propositalmente para testar o tratamento de produtos inexistentes.
+
+Esse comportamento demonstra que o sistema diferencia consultas sem resultado de erros técnicos. Quando um produto não é encontrado, a ausência é registrada de forma controlada, sem necessariamente provocar uma falha na execução do serviço.
+
+**Observação:** os 39 registros representam o histórico acumulado do arquivo de log, incluindo execuções anteriores e os testes realizados em 27/11/2026. Os resultados podem mudar caso novas chamadas sejam executadas.
+
+  ### 8.3. Validação complementar
 
   Além dos testes apresentados anteriormente, foram realizadas validações complementares dos requisitos RF-02 e RF-03.
 
@@ -529,19 +608,47 @@
 
   **RF-03 — Configuração da estratégia**
 
-  Foi realizada uma chamada `PUT` ao endpoint `/api/v1/recommendations/config`, utilizando a estratégia `COLD_START` e a chave administrativa configurada na variável de ambiente `MANOA_ADMIN_API_KEY`.
+Foram realizados três testes no endpoint `PUT /api/v1/recommendations/config`, verificando a autenticação administrativa e a validação da estratégia informada.
 
-  **Resposta obtida:**
+**1. Configuração com chave administrativa válida**
 
-  ```json
-  {
-    "strategyId": "COLD_START",
-    "status": "ACTIVE",
-    "message": "Estratégia atualizada com sucesso"
-  }
-  ```
+Foi enviada uma requisição utilizando a estratégia `COLD_START` e a chave administrativa configurada na variável de ambiente `MANOA_ADMIN_API_KEY`.
 
-  **Resultado:** a chamada foi concluída com sucesso, confirmando a validação da chave administrativa e a atualização da configuração da estratégia para `COLD_START`.
+**Resposta obtida — HTTP 200:**
+
+```json
+{
+  "strategyId": "COLD_START",
+  "status": "ACTIVE",
+  "message": "Estratégia atualizada com sucesso"
+}
+```
+
+**2. Configuração com chave administrativa incorreta**
+
+Foi enviada uma requisição utilizando uma chave diferente da configurada na variável de ambiente.
+
+**Resposta obtida — HTTP 401:**
+
+```json
+{
+  "detail": "Não autorizado"
+}
+```
+
+**3. Configuração com estratégia inválida**
+
+Foi enviada uma requisição com a chave administrativa correta, mas informando um identificador de estratégia não aceito pelo serviço.
+
+**Resposta obtida — HTTP 400:**
+
+```json
+{
+  "detail": "strategyId inválido"
+}
+```
+
+**Resultado:** os testes confirmaram que o endpoint aceita a configuração quando a chave administrativa é válida e a estratégia informada é permitida. Também foi verificado que requisições com chave incorreta são rejeitadas com HTTP 401 e estratégias inválidas retornam HTTP 400.
 
   ## 9. Declaração de uso de IA generativa
 
@@ -754,13 +861,13 @@
   **Exemplo de chamada — Windows PowerShell:**
 
   ```powershell
-  curl.exe -X PUT "http://localhost:3000/api/v1/recommendations/config?strategyId=COLD_START" -H "X-Api-Key: manoa-admin-123"
+  curl.exe -X PUT "http://localhost:3000/api/v1/recommendations/config?strategyId=COLD_START" -H "X-Api-Key: SUA_CHAVE_ADMINISTRATIVA"
   ```
 
   **Exemplo de chamada — Linux/macOS:**
 
   ```bash
-  curl -X PUT "http://localhost:3000/api/v1/recommendations/config?strategyId=COLD_START" -H "X-Api-Key: manoa-admin-123"
+  curl -X PUT "http://localhost:3000/api/v1/recommendations/config?strategyId=COLD_START" -H "X-Api-Key: SUA_CHAVE_ADMINISTRATIVA"
   ```
 
   **Resposta esperada:**
@@ -918,7 +1025,7 @@
   **Comando:**
 
   ```powershell
-  curl.exe -X PUT "http://localhost:3000/api/v1/recommendations/config?strategyId=COLD_START" -H "X-Api-Key: manoa-admin-123"
+  curl.exe -X PUT "http://localhost:3000/api/v1/recommendations/config?strategyId=COLD_START" -H "X-Api-Key: SUA_CHAVE_ADMINISTRATIVA"
   ```
 
   **Resultado esperado:**
