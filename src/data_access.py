@@ -80,13 +80,38 @@ def get_product_by_id(product_id, caller):
         raise
 
 
+
 def get_recommendation_candidates(product_id, caller):
     """
     Recupera os produtos candidatos à recomendação,
     excluindo o próprio produto informado.
+    Retorna uma lista vazia caso o produto de origem não exista.
     """
 
     try:
+        # Verifica se o produto de origem existe no catálogo
+        produto_origem = next(
+            (
+                item for item in catalogo
+                if item["productId"] == product_id
+            ),
+            None
+        )
+
+        # Caso o produto de origem não exista
+        if produto_origem is None:
+            registrar_acesso(
+                nome_funcao="get_recommendation_candidates",
+                rota=caller,
+                parametros={"productId": product_id},
+                registros=0,
+                record_ids=[],
+                status="not_found"
+            )
+
+            return []
+
+        # Recupera os produtos, excluindo o produto de origem
         produtos = [
             item for item in catalogo
             if item["productId"] != product_id
@@ -115,6 +140,7 @@ def get_recommendation_candidates(product_id, caller):
             status="error"
         )
         raise
+
 
 
 def get_cold_start_products(caller):

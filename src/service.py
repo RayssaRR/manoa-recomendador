@@ -3,7 +3,7 @@ import os
 import time
 
 import bentoml
-from fastapi import FastAPI, Header
+from fastapi import FastAPI, Header, HTTPException
 
 from src.data_access import (
     get_product_by_id,
@@ -29,8 +29,6 @@ FALLBACK_PRODUCT_SCORES = {
 @bentoml.service
 @bentoml.asgi_app(app)
 class ManoaService:
-
-    
 
     @app.get("/api/v1/recommendations/product/{productId}")
     def recommend_product(
@@ -78,11 +76,12 @@ class ManoaService:
             "/api/v1/recommendations/product"
         )
 
-        # Caso o produto não exista
+        # Caso o produto não exista, retorna HTTP 404
         if produto_principal is None:
-            return {
-                "error": "Produto não encontrado"
-            }
+            raise HTTPException(
+                status_code=404,
+                detail="Produto não encontrado"
+            )
 
         # Recupera os produtos candidatos pela camada de acesso
         produtos_candidatos = get_recommendation_candidates(
@@ -109,15 +108,17 @@ class ManoaService:
             if produto["technique"] == produto_principal["technique"]:
                 score += 0.2
 
-            recomendacoes.append({
-                "productId": produto["productId"],
-                "title": produto["title"],
-                "category": produto["category"],
-                "municipality": produto["municipality"],
-                "price": produto["price"],
-                "imageUrl": produto["imageUrl"],
-                "score": score
-            })
+            # Adiciona somente produtos com alguma similaridade
+            if score > 0:
+                recomendacoes.append({
+                    "productId": produto["productId"],
+                    "title": produto["title"],
+                    "category": produto["category"],
+                    "municipality": produto["municipality"],
+                    "price": produto["price"],
+                    "imageUrl": produto["imageUrl"],
+                    "score": score
+                })
 
         # Ordena do maior score para o menor
         recomendacoes.sort(
@@ -125,15 +126,21 @@ class ManoaService:
             reverse=True
         )
 
-        # Retorna as 4 melhores recomendações
-        return {
+        # Monta a resposta com as 4 melhores recomendações
+        resposta = {
             "productId": productId,
             "strategy": "SAME_CATEGORY_AND_ORIGIN",
             "fallbackUsed": False,
             "recommendations": recomendacoes[:4]
         }
 
-    
+        # Informa quando não existem recomendações similares
+        if not recomendacoes:
+            resposta["message"] = (
+                "Não foram encontradas recomendações com atributos em comum."
+            )
+
+        return resposta
 
     @app.get("/api/v1/recommendations/home")
     def recommend_home(self, anonymousSessionId: str):
@@ -158,8 +165,6 @@ class ManoaService:
             "recommendations": recomendacoes
         }
 
-  
-
     @app.put("/api/v1/recommendations/config")
     def update_config(
         self,
@@ -169,10 +174,12 @@ class ManoaService:
 
         admin_api_key = os.environ.get("MANOA_ADMIN_API_KEY")
 
+        # Valida a chave administrativa
         if not admin_api_key or x_api_key != admin_api_key:
-            return {
-                "error": "Não autorizado"
-            }
+            raise HTTPException(
+                status_code=401,
+                detail="Não autorizado"
+            )
 
         # Estratégias aceitas pelo mock
         estrategias_validas = [
@@ -182,9 +189,10 @@ class ManoaService:
 
         # Valida a estratégia
         if strategyId not in estrategias_validas:
-            return {
-                "error": "strategyId inválido"
-            }
+            raise HTTPException(
+                status_code=400,
+                detail="strategyId inválido"
+            )
 
         return {
             "strategyId": strategyId,
